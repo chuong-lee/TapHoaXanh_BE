@@ -1,6 +1,5 @@
 // payment.service.ts
-import {Injectable,InternalServerErrorException,NotFoundException,
-} from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Payment } from './entities/payment.entity';
@@ -104,7 +103,10 @@ export class PaymentService {
     };
 
     const date = new Date();
-    const createDate = date.toISOString().replace(/[-T:.Z]/g, '').slice(0, 14);
+    const createDate = date
+      .toISOString()
+      .replace(/[-T:.Z]/g, '')
+      .slice(0, 14);
     const txnRef = `${payment.order?.id || 'UNKNOWN'}-${Date.now()}`;
     const amount = payment.amount * 100;
 
@@ -123,10 +125,15 @@ export class PaymentService {
       vnp_CreateDate: createDate,
     };
 
-    const sortedParams = Object.keys(params).sort().reduce((acc, key) => {
-      acc[key] = params[key];
-      return acc;
-    }, {} as Record<string, any>);
+    const sortedParams = Object.keys(params)
+      .sort()
+      .reduce(
+        (acc, key) => {
+          acc[key] = (params as Record<string, any>)[key];
+          return acc;
+        },
+        {} as Record<string, any>,
+      );
 
     const signData = qs.stringify(sortedParams, { encode: false });
     const secureHash = crypto

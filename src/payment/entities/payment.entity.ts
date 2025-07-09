@@ -1,7 +1,7 @@
 import { AbstractEntity } from 'src/database/database.entity';
 import { Order } from 'src/order/entities/order.entity';
 import { Users } from 'src/users/entities/users.entity';
-import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, JoinColumn, OneToOne } from 'typeorm';
 
 @Entity('payment')
 export class Payment extends AbstractEntity<Payment> {
@@ -26,8 +26,7 @@ export class Payment extends AbstractEntity<Payment> {
   @Column({ type: 'timestamp', nullable: true })
   paid_at: Date;
 
-  @ManyToOne(() => Order, (order) => order.payment, { nullable: true })
-  @JoinColumn({ name: 'order_id' })
+  @OneToOne(() => Order, (order) => order.payment)
   order: Order;
 
   @ManyToOne(() => Users, (users) => users.payment, { nullable: true })
