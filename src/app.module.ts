@@ -10,7 +10,7 @@ import { UsersModule } from './users/users.module';
 import { AddressModule } from './address/address.module';
 import { VoucherModule } from './voucher/voucher.module';
 import { OrderModule } from './order/order.module';
-import { PaymentModule } from './payment/payment.module';
+// import { PaymentModule } from './payment/payment.module';
 import { DeliveryModule } from './delivery/delivery.module';
 import { OrderItemModule } from './order_item/order_item.module';
 import { RatingModule } from './rating/rating.module';
@@ -23,7 +23,7 @@ import { CategoryChildModule } from './category-child/category-child.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ cache: true, isGlobal: true }),
     AuthModule,
     ProductsModule,
     CategoriesModule,
@@ -35,7 +35,7 @@ import { CategoryChildModule } from './category-child/category-child.module';
     AddressModule,
     VoucherModule,
     OrderModule,
-    PaymentModule,
+    // PaymentModule,
     DeliveryModule,
     OrderItemModule,
     RatingModule,

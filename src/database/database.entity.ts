@@ -2,14 +2,14 @@ import { BaseEntity, CreateDateColumn, DeleteDateColumn, PrimaryGeneratedColumn,
 
 export abstract class AbstractEntity<T> extends BaseEntity {
   @PrimaryGeneratedColumn() // id tự đông tăng
-  id: number;
+  id!: number;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
+  @UpdateDateColumn({ nullable: true })
+  updatedAt?: Date | null;
 
   @DeleteDateColumn({ nullable: true })
-  deletedAt: Date | null;
+  deletedAt?: Date | null;
 }

@@ -15,7 +15,9 @@ export class UsersService implements IUsersService {
   //   const hashedPassword = await bcrypt.hash(registerDto.password, 10);
   //   return this._usersRepository.createUser({ ...registerDto, password: hashedPassword, role: 'user' });
   // }
-
+  async findAll(): Promise<Users[]> {
+    return await this._usersRepository.findAll();
+  }
   async findByEmail(email: string): Promise<Users | null> {
     return await this._usersRepository.findByEmail(email);
   }

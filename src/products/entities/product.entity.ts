@@ -57,7 +57,6 @@ export class Product extends AbstractEntity<Product> {
   @OneToMany(() => ProductVariant, (variant) => variant.product)
   variants: ProductVariant[];
 
-  
   @OneToMany(() => Cart, (cart) => cart.product)
   carts: Cart[];
 

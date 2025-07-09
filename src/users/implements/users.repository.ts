@@ -10,7 +10,9 @@ export class UsersRepository implements IUsersRepository {
     @InjectRepository(Users)
     private usersRepository: Repository<Users>,
   ) {}
-
+  async findAll(): Promise<Users[]> {
+    return this.usersRepository.find();
+  }
   async findById(id: number): Promise<Users | null> {
     return this.usersRepository.findOneBy({ id });
   }
