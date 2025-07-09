@@ -26,8 +26,8 @@ export class AuthController {
   logout() {
     return { message: 'Đăng xuất thành công.' };
   }
-  @Get('user/:id')
-  async getUserById(@Body('id') id: number) {
-    return await this.authService.getUserById(id);
-  }
+  // @Get('user/:id')
+  // async getUserById(@Body('id') id: number) {
+  //   return await this.authService.getUserById(id);
+  // }
 }
