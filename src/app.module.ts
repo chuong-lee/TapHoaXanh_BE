@@ -20,6 +20,7 @@ import { CartItemModule } from './cart_item/cart_item.module';
 import { NewsModule } from './news/news.module';
 import { AuthModule } from './auth/auth.module';
 import { CategoryChildModule } from './category-child/category-child.module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -35,7 +36,7 @@ import { CategoryChildModule } from './category-child/category-child.module';
     AddressModule,
     VoucherModule,
     OrderModule,
-    // PaymentModule,
+    PaymentModule,
     DeliveryModule,
     OrderItemModule,
     RatingModule,

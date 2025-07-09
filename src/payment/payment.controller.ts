@@ -55,7 +55,7 @@ export class PaymentController {
   // Cập nhật thanh toán theo ID
   @Patch(':id')
   @UsePipes(new ValidationPipe({ whitelist: true }))
-  async update(@Param('id', ParseIntPipe) id: number,@Body() updatePaymentDto: UpdatePaymentDto) {
+  async update(@Param('id', ParseIntPipe) id: number, @Body() updatePaymentDto: UpdatePaymentDto) {
     const updatedPayment = await this.paymentService.update(id, updatePaymentDto);
     return {
       status: 'success',

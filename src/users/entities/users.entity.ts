@@ -8,6 +8,7 @@ import { Voucher } from 'src/voucher/entities/voucher.entity';
 import { Wishlist } from 'src/wishlist/entities/wishlist.entity';
 import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
 import { TUserRole } from 'src/types/common.enum';
+import { Payment } from 'src/payment/entities/payment.entity';
 @Entity('users')
 export class Users extends AbstractEntity<Users> {
   @Column('varchar', { length: 255 })
@@ -34,8 +35,8 @@ export class Users extends AbstractEntity<Users> {
   voucher?: Voucher[];
   @OneToMany(() => Order, (order) => order.users)
   order?: Order[];
-  // @OneToMany(() => Payment, (payment) => payment.users)
-  // payment: Payment[];
+  @OneToMany(() => Payment, (payment) => payment.users)
+  payment: Payment[];
   @OneToMany(() => Rating, (rating) => rating.users)
   rating?: Rating[];
   @OneToMany(() => Wishlist, (wishlist) => wishlist.users)
