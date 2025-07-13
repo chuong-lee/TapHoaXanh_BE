@@ -1,12 +1,12 @@
-import { Controller, Post, Body, Get } from '@nestjs/common';
-import { AuthService } from './implements/auth.service';
+import { Controller, Post, Body, Get, Inject } from '@nestjs/common';
+import { IAuthService } from './interfaces/iauth-service.interface';
 import { RegisterAuthDto } from './dto/register.dto';
 import { LoginAuthDto } from './dto/login.dto';
 import { ForgotPasswordAuthDto } from './dto/forgot-password.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(@Inject(IAuthService) private readonly authService: IAuthService) {}
 
   @Post('register')
   async register(@Body() dto: RegisterAuthDto) {
@@ -22,12 +22,9 @@ export class AuthController {
   async forgotPassword(@Body() dto: ForgotPasswordAuthDto) {
     return this.authService.forgotPassword(dto.email);
   }
+
   @Post('logout')
   logout() {
     return { message: 'Đăng xuất thành công.' };
-  }
-  @Get('user/:id')
-  async getUserById(@Body('id') id: number) {
-    return await this.authService.getUserById(id);
   }
 }
