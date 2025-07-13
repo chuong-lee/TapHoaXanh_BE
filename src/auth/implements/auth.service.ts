@@ -4,9 +4,17 @@ import { RegisterAuthDto } from 'src/auth/dto/register.dto';
 import { IUsersRepository } from 'src/users/interfaces/iusers-repository.interface';
 import * as nodemailer from 'nodemailer';
 import { IAuthService } from 'src/auth/interfaces/iauth-service.interface';
+import { JwtService } from '@nestjs/jwt';
+import { IAuthRepository } from '../interfaces/iauth-repository.interface';
+import { Token } from '../entities/token.entity';
+import { Users } from 'src/users/entities/users.entity';
 @Injectable()
 export class AuthService implements IAuthService {
-  constructor(@Inject(IUsersRepository) private readonly _userRepository: IUsersRepository) {}
+  constructor(
+    @Inject(IUsersRepository) private readonly _userRepository: IUsersRepository,
+    @Inject(IAuthRepository) private readonly _authRepository: IAuthRepository,
+    private readonly _jwtService: JwtService,
+  ) {}
 
   async register(registerDto: RegisterAuthDto) {
     const existUser = await this._userRepository.findByEmail(registerDto.email);
@@ -20,14 +28,48 @@ export class AuthService implements IAuthService {
   }
 
   async login(email: string, password: string) {
-    const user = await this._userRepository.findByEmail(email);
-    if (!user) throw new UnauthorizedException('Sai email hoặc mật khẩu');
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) throw new UnauthorizedException('Sai email hoặc mật khẩu');
+    const user = await this._userRepository.findByEmail(email); //tìm người dùng theo email
+    if (!user) throw new UnauthorizedException('Sai email hoặc mật khẩu'); //nếu không thể tìm thấy người dùng thì ném lỗi
+    const isMatch = await bcrypt.compare(password, user.password); //so sánh mật khẩu đã nhập với mật khẩu đã mã hóa trong cơ sở dữ liệu
+    if (!isMatch) throw new UnauthorizedException('Sai email hoặc mật khẩu'); //nếu mật khẩu không khớp thì ném lỗi
     // const { password: _, ...userWithoutPassword } = user;
+    const { access_token, refresh_token } = await this.generateToken(user); //gọi generateToken để tạo access_token và refresh_token cho người dùng
 
-    // TODO: Generate JWT token here
-    return true;
+    await this._authRepository.createToken(new Token(access_token, refresh_token, user)); //lưu token vào cơ sở dữ liệu
+    return { access_token, refresh_token };
+  }
+
+  async generateToken(user: Users): Promise<{ access_token: string; refresh_token: string }> {
+    const payload = { sub: user.id, role: user.role }; //tạo payload chứa thông tin người dùng
+    const refresh_token = await this._jwtService.signAsync(payload, {
+      secret: process.env.REFRESH_JWT_SECRET,
+      expiresIn: '7d',
+    }); //tạo refresh_token
+    const token = await this._jwtService.signAsync(payload, {
+      secret: process.env.JWT_SECRET,
+      expiresIn: '1d',
+    });
+    return { access_token: token, refresh_token: refresh_token };
+  }
+
+  async refreshToken(refreshToken: string): Promise<{ access_token: string; refresh_token: string }> {
+    const payload = await this._jwtService.verifyAsync(refreshToken, {
+      secret: process.env.REFRESH_JWT_SECRET,
+    }); //xác thực refresh_token
+
+    const refreshTokenExists = await this._authRepository.checkRefreshToken(refreshToken, payload.sub); //kiểm tra xem refresh_token có tồn tại trong cơ sở dữ liệu hay không
+    if (!refreshTokenExists) throw new UnauthorizedException('Refresh token không hợp lệ');
+    const user = await this._userRepository.findById(payload.sub); //lấy thông tin người dùng từ cơ sở dữ liệu theo id trong payload
+    if (!user) throw new NotFoundException('Người dùng không tồn tại');
+    const { access_token, refresh_token } = await this.generateToken(user); //tạo access_token và refresh_token mới
+    await this._authRepository.createToken(new Token(access_token, refresh_token, user)); //lưu token mới vào cơ sở dữ liệu
+
+    return { access_token, refresh_token };
+  }
+
+  async verifyToken(token: string, userId: number): Promise<boolean> {
+    //TODO: Check if token exists in database with userId
+    return await this._authRepository.checkTokenByUserId(userId, token);
   }
 
   async forgotPassword(email: string) {

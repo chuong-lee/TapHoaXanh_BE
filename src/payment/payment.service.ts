@@ -129,7 +129,7 @@ export class PaymentService {
       .sort()
       .reduce(
         (acc, key) => {
-          acc[key] = params[key];
+          acc[key] = (params as Record<string, any>)[key];
           return acc;
         },
         {} as Record<string, any>,

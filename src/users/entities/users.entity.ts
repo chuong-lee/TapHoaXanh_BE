@@ -1,46 +1,48 @@
 import { Address } from 'src/address/entities/address.entity';
+import { Token } from 'src/auth/entities/token.entity';
 import { Cart } from 'src/cart/entities/cart.entity';
 import { AbstractEntity } from 'src/database/database.entity';
 import { Order } from 'src/order/entities/order.entity';
-import { Payment } from 'src/payment/entities/payment.entity';
 import { Rating } from 'src/rating/entities/rating.entity';
 import { Voucher } from 'src/voucher/entities/voucher.entity';
 import { Wishlist } from 'src/wishlist/entities/wishlist.entity';
-import { Column, Entity, OneToMany } from 'typeorm';
-
+import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
+import { TUserRole } from 'src/types/common.enum';
+import { Payment } from 'src/payment/entities/payment.entity';
 @Entity('users')
 export class Users extends AbstractEntity<Users> {
-  @Column()
-  name: string;
+  @Column('varchar', { length: 255 })
+  name!: string;
 
-  @Column()
-  phone: string;
+  @Column('varchar', { length: 20, nullable: true })
+  phone?: string;
 
-  @Column({ nullable: true })
-  image: string;
+  @Column('varchar', { length: 255, nullable: true })
+  image?: string;
 
-  @Column()
-  role: string;
+  @Column({ type: 'enum', enum: TUserRole, default: TUserRole.USER })
+  role!: TUserRole;
 
-  @Column()
-  email: string;
+  @Column('varchar', { length: 255, unique: true })
+  email!: string;
 
-  @Column()
-  password: string;
+  @Column('varchar', { length: 255 })
+  password!: string;
 
   @OneToMany(() => Address, (address) => address.users)
-  address: Address[];
+  address?: Address[];
   @OneToMany(() => Voucher, (voucher) => voucher.users)
-  voucher: Voucher[];
+  voucher?: Voucher[];
   @OneToMany(() => Order, (order) => order.users)
-  order: Order[];
+  order?: Order[];
   @OneToMany(() => Payment, (payment) => payment.users)
   payment: Payment[];
   @OneToMany(() => Rating, (rating) => rating.users)
-  rating: Rating[];
+  rating?: Rating[];
   @OneToMany(() => Wishlist, (wishlist) => wishlist.users)
-  wishlist: Wishlist[];
+  wishlist?: Wishlist[];
   @OneToMany(() => Cart, (cart) => cart.user)
-  cart: Cart[];
-
+  cart?: Cart[];
+  @OneToOne(() => Token, (token) => token.user, { nullable: true })
+  token?: Token;
 }
