@@ -1,35 +1,45 @@
 import { AbstractEntity } from 'src/database/database.entity';
 import { Order } from 'src/order/entities/order.entity';
 import { Users } from 'src/users/entities/users.entity';
-import { Column, Entity, ManyToOne, JoinColumn, OneToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { PaymentMethod } from '../enums/payment-method.enum';
+import { PaymentStatus } from '../enums/payment-status.enum';
 
-@Entity('payment')
-export class Payment extends AbstractEntity<Payment> {
-  @Column({ type: 'decimal', precision: 10, scale: 2 })
+@Entity()
+export class Payment {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
   amount: number;
 
-  @Column({ type: 'varchar', length: 10 })
+  @Column()
   currency: string;
 
-  @Column({ type: 'text', nullable: true })
-  description: string;
+  @Column({ nullable: true })
+  source?: string;
 
-  @Column({ type: 'varchar', length: 255 })
-  stripeChargeId: string;
+  @Column({ nullable: true })
+  description?: string;
 
-  @Column({ type: 'varchar', length: 100, default: 'stripe' })
-  payment_method: string;
+  @Column({
+    type: 'enum',
+    enum: PaymentMethod,
+  })
+  payment_method: PaymentMethod;
 
-  @Column({ type: 'varchar', length: 50, default: 'success' })
-  payment_status: string;
+  @Column({
+    type: 'enum',
+    enum: PaymentStatus,
+    default: PaymentStatus.PENDING,
+  })
+  payment_status: PaymentStatus;
 
-  @Column({ type: 'timestamp', nullable: true })
-  paid_at: Date;
+  @ManyToOne(() => Users, (user) => user.payments)
+  @JoinColumn()
+  user: Users;
 
   @OneToOne(() => Order, (order) => order.payment)
+  @JoinColumn()
   order: Order;
-
-  @ManyToOne(() => Users, (users) => users.payment, { nullable: true })
-  @JoinColumn({ name: 'user_id' })
-  users: Users;
 }

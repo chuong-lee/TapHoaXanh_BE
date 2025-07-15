@@ -32,7 +32,7 @@ export class PaymentService {
       payment_status: PaymentStatus.PENDING,
     });
 
-    const saved = await this.paymentRepository.save(payment);
+    const saved = await this.paymentRepository.save(payment) as Payment;
 
     switch (createPaymentDto.payment_method) {
       case PaymentMethod.MOMO:
@@ -110,7 +110,7 @@ export class PaymentService {
     const txnRef = `${payment.id}-${Date.now()}`;
     const amount = payment.amount * 100;
 
-    const params = {
+    const params: Record<string, any> = {
       vnp_Version: '2.1.0',
       vnp_Command: 'pay',
       vnp_TmnCode: vnpConfig.tmnCode,
@@ -127,10 +127,10 @@ export class PaymentService {
 
     const sortedParams = Object.keys(params)
       .sort()
-      .reduce((acc, key) => {
+      .reduce((acc: Record<string, any>, key: string) => {
         acc[key] = params[key];
         return acc;
-      }, {} as Record<string, any>);
+      }, {});
 
     const signData = qs.stringify(sortedParams, { encode: false });
     const secureHash = crypto
@@ -162,7 +162,9 @@ export class PaymentService {
   }
 
   async update(id: number, updatePaymentDto: UpdatePaymentDto): Promise<Payment> {
-    const payment = await this.paymentRepository.preload({ id: Number(id), ...updatePaymentDto });
+    // Loại bỏ id khỏi updatePaymentDto nếu có
+    const { id: _id, ...rest } = updatePaymentDto as any;
+    const payment = await this.paymentRepository.preload({ id: Number(id), ...rest });
     if (!payment) throw new NotFoundException(`Payment with id ${id} not found`);
     return this.paymentRepository.save(payment);
   }
