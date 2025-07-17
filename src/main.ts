@@ -20,17 +20,23 @@ async function bootstrap() {
     credentials: true,
   });
   const config = new DocumentBuilder()
-    .setTitle('Cats example')
-    .setDescription('The cats API description')
+    .setTitle('Tên API')
+    .setDescription('Mô tả API')
     .setVersion('1.0')
-    .addBearerAuth({
-      type: 'http',
-      scheme: 'bearer',
-      bearerFormat: 'JWT',
-    })
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Nhập token theo dạng: Bearer <JWT>',
+        in: 'header',
+      },
+      'access-token', // Tên này sẽ dùng ở @ApiBearerAuth()
+    )
     .build();
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, documentFactory, {
+  const document = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document, {
     // useGlobalPrefix: true,
     jsonDocumentUrl: 'swagger/json',
     swaggerOptions: {

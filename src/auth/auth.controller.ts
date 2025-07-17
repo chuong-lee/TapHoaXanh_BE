@@ -1,9 +1,10 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Req, UseGuards } from '@nestjs/common';
 import { RegisterAuthDto } from './dto/register.dto';
 import { LoginAuthDto } from './dto/login.dto';
 import { ForgotPasswordAuthDto } from './dto/forgot-password.dto';
 import { IAuthService } from './interfaces/iauth-service.interface';
 import { ApiBody, ApiOperation } from '@nestjs/swagger';
+import { JwtGuard } from './guards/jwt.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -39,9 +40,10 @@ export class AuthController {
   async refreshToken(@Body('refresh_token') refreshToken: string) {
     return this.authService.refreshToken(refreshToken);
   }
-
+  @UseGuards(JwtGuard)
   @Post('logout')
-  logout() {
-    return { message: 'Đăng xuất thành công.' };
+  async logout(@Req() req: any) {
+    const userId = req.user.id;
+    return this.authService.logout(userId);
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, NotFoundException, Inject } from '@nestjs/common';
+import { Injectable, UnauthorizedException, NotFoundException, Inject, BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { RegisterAuthDto } from 'src/auth/dto/register.dto';
 import { IUsersRepository } from 'src/users/interfaces/iusers-repository.interface';
@@ -19,12 +19,16 @@ export class AuthService implements IAuthService {
   async register(registerDto: RegisterAuthDto) {
     const existUser = await this._userRepository.findByEmail(registerDto.email);
     if (existUser) throw new NotFoundException('Email đã tồn tại');
+    if (registerDto.password !== registerDto.confirmPassword) throw new BadRequestException('Mật khẩu không khớp.');
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
     const user = await this._userRepository.createUser({
       ...registerDto,
       password: hashedPassword,
     });
-    return user;
+    const { access_token, refresh_token } = await this.generateToken(user); //gọi generateToken để tạo access_token và refresh_token cho người dùng
+
+    await this._authRepository.createToken(new Token(access_token, refresh_token, user)); //lưu token vào cơ sở dữ liệu
+    return { access_token, refresh_token };
   }
 
   async login(email: string, password: string) {
@@ -70,6 +74,10 @@ export class AuthService implements IAuthService {
   async verifyToken(token: string, userId: number): Promise<boolean> {
     //TODO: Check if token exists in database with userId
     return await this._authRepository.checkTokenByUserId(userId, token);
+  }
+  async logout(userId: number): Promise<{ message: string }> {
+    await this._authRepository.deleteTokenByUserId(userId);
+    return { message: 'Đăng xuất thành công.' };
   }
 
   async forgotPassword(email: string) {
