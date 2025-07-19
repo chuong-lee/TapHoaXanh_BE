@@ -35,8 +35,9 @@ export class Users extends AbstractEntity<Users> {
   voucher?: Voucher[];
   @OneToMany(() => Order, (order) => order.users)
   order?: Order[];
-  @OneToMany(() => Payment, (payment) => payment.users)
-  payment: Payment[];
+  @OneToMany(() => Payment, (payment) => payment.user)
+  payments: Payment[];
+
   @OneToMany(() => Rating, (rating) => rating.users)
   rating?: Rating[];
   @OneToMany(() => Wishlist, (wishlist) => wishlist.users)

@@ -1,4 +1,4 @@
-// payment.service.ts
+// 📁 src/payment/payment.service.ts
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -19,17 +19,20 @@ export class PaymentService {
     private paymentRepository: Repository<Payment>,
 
     @InjectRepository(PaymentLog)
-    private logRepo: Repository<PaymentLog>, // ✅ tên đúng
+    private logRepo: Repository<PaymentLog>,
   ) {}
 
   async createCharge(createPaymentDto: CreatePaymentDto): Promise<{ paymentUrl: string }> {
     const payment = this.paymentRepository.create({
-      ...createPaymentDto,
+      amount: createPaymentDto.amount,
       currency: createPaymentDto.currency || 'VND',
+      source: createPaymentDto.source,
+      description: createPaymentDto.description,
+      payment_method: createPaymentDto.payment_method,
       payment_status: PaymentStatus.PENDING,
     });
 
-    const saved = await this.paymentRepository.save(payment);
+    const saved = await this.paymentRepository.save(payment) as Payment;
 
     switch (createPaymentDto.payment_method) {
       case PaymentMethod.MOMO:
@@ -52,7 +55,7 @@ export class PaymentService {
     };
 
     const requestId = payment.id.toString();
-    const orderId = `${payment.order?.id || 'UNKNOWN'}-${Date.now()}`;
+    const orderId = `${payment.id}-${Date.now()}`;
     const rawSignature = `accessKey=${momoConfig.accessKey}&amount=${payment.amount}&extraData=&ipnUrl=${momoConfig.notifyUrl}&orderId=${orderId}&orderInfo=${payment.description}&partnerCode=${momoConfig.partnerCode}&redirectUrl=${momoConfig.returnUrl}&requestId=${requestId}&requestType=captureWallet`;
 
     const signature = crypto
@@ -103,14 +106,11 @@ export class PaymentService {
     };
 
     const date = new Date();
-    const createDate = date
-      .toISOString()
-      .replace(/[-T:.Z]/g, '')
-      .slice(0, 14);
-    const txnRef = `${payment.order?.id || 'UNKNOWN'}-${Date.now()}`;
+    const createDate = date.toISOString().replace(/[-T:.Z]/g, '').slice(0, 14);
+    const txnRef = `${payment.id}-${Date.now()}`;
     const amount = payment.amount * 100;
 
-    const params = {
+    const params: Record<string, any> = {
       vnp_Version: '2.1.0',
       vnp_Command: 'pay',
       vnp_TmnCode: vnpConfig.tmnCode,
@@ -127,13 +127,10 @@ export class PaymentService {
 
     const sortedParams = Object.keys(params)
       .sort()
-      .reduce(
-        (acc, key) => {
-          acc[key] = (params as Record<string, any>)[key];
-          return acc;
-        },
-        {} as Record<string, any>,
-      );
+      .reduce((acc: Record<string, any>, key: string) => {
+        acc[key] = params[key];
+        return acc;
+      }, {});
 
     const signData = qs.stringify(sortedParams, { encode: false });
     const secureHash = crypto
@@ -149,7 +146,6 @@ export class PaymentService {
       paymentMethod: 'vnpay',
       rawData: params,
       status: 'pending',
-      reason: undefined,
     });
 
     return { paymentUrl };
@@ -166,7 +162,9 @@ export class PaymentService {
   }
 
   async update(id: number, updatePaymentDto: UpdatePaymentDto): Promise<Payment> {
-    const payment = await this.paymentRepository.preload({ id, ...updatePaymentDto });
+    // Loại bỏ id khỏi updatePaymentDto nếu có
+    const { id: _id, ...rest } = updatePaymentDto as any;
+    const payment = await this.paymentRepository.preload({ id: Number(id), ...rest });
     if (!payment) throw new NotFoundException(`Payment with id ${id} not found`);
     return this.paymentRepository.save(payment);
   }
