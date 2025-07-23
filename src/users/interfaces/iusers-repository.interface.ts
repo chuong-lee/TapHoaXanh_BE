@@ -8,4 +8,5 @@ export abstract class IUsersRepository {
   abstract findByEmail(email: string): Promise<Users | null>;
   abstract createUser(userData: Partial<Users>): Promise<Users>;
   abstract updatePassword(email: string, newHashedPassword: string): Promise<void>;
+  abstract updateUser(id: number, userData: Partial<Users>): Promise<Users | null>;
 }
