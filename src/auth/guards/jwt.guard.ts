@@ -21,7 +21,6 @@ export class JwtGuard implements CanActivate {
         secret: process.env.JWT_SECRET,
         ignoreExpiration: false,
       });
-
       //Check if the token exists in the database
       const tokenExists = await this.authService.verifyToken(access_Token, payload.sub);
       if (!tokenExists) {

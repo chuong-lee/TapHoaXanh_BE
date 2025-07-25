@@ -1,9 +1,11 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Users } from '../entities/users.entity';
-import { RegisterAuthDto } from 'src/auth/dto/register.dto';
 import { IUsersService } from '../interfaces/iusers-service.interface';
 import { IUsersRepository } from '../interfaces/iusers-repository.interface';
+import { UpdateUserDto } from '../dto/update-user.dto';
+import { plainToInstance } from 'class-transformer';
+import { ProfileDto } from '../dto/profile-user.dto';
 
 @Injectable()
 export class UsersService implements IUsersService {
@@ -32,7 +34,21 @@ export class UsersService implements IUsersService {
 
   async findById(id: number): Promise<Users | null> {
     const user = await this._usersRepository.findById(id);
+
     if (!user) throw new NotFoundException('Người dùng không tồn tại');
     return user;
+  }
+
+  async updateUserInformation(id: number, updateUserDto: UpdateUserDto): Promise<Users | null> {
+    await this.findById(id);
+    return await this._usersRepository.updateUser(id, updateUserDto);
+  }
+
+  async getUserInformation(id: number): Promise<ProfileDto | null> {
+    const user = await this._usersRepository.findById(id);
+    if (!user) throw new NotFoundException('Người dùng không tồn tại');
+    console.log(user, 'asd1');
+    console.log(plainToInstance(ProfileDto, user), 'asd2');
+    return plainToInstance(ProfileDto, user);
   }
 }

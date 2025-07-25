@@ -17,4 +17,8 @@ export class RegisterAuthDto {
   @ApiProperty({ example: '12345678' })
   @MinLength(8)
   password: string;
+
+  @ApiProperty({ example: '12345678' })
+  @MinLength(8)
+  confirmPassword: string;
 }

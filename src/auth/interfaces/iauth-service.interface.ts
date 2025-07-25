@@ -4,5 +4,5 @@ export abstract class IAuthService {
   abstract forgotPassword(email: string): Promise<any>;
   abstract verifyToken(token: string, userId: number): Promise<boolean>;
   abstract refreshToken(refreshToken: string): Promise<{ access_token: string; refresh_token: string }>;
-  //   abstract logout(): Promise<{ message: string }>;
+  abstract logout(userId: number): Promise<{ message: string }>;
 }

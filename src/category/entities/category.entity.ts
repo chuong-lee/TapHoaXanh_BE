@@ -3,7 +3,6 @@ import { Product } from 'src/products/entities/product.entity';
 import { Column, Entity, OneToMany } from 'typeorm';
 import { CategoryChild } from '../../category-child/entities/category-child.entity';
 
-
 @Entity('category')
 export class Category extends AbstractEntity<Category> {
   @Column()
