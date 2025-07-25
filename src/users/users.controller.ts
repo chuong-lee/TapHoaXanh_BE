@@ -1,5 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import { Controller, Get, Body, Put, Param, UseGuards, Req } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { IUsersService } from './interfaces/iusers-service.interface';
 import { ApiBearerAuth } from '@nestjs/swagger';
@@ -21,18 +20,29 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @Get(':id')
+  @ApiBearerAuth()
+  @UseGuards(JwtGuard)
+  @Get('profile')
+  async findLogined(@Req() req: any) {
+    return await this.usersService.getUserInformation(req.user.sub);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtGuard)
+  @Get('detail/:id')
   findOne(@Param('id') id: string) {
     return this.usersService.findById(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    // return this.usersService.update(+id, updateUserDto);
+  @ApiBearerAuth()
+  @UseGuards(JwtGuard)
+  @Put()
+  async update(@Req() req: any, @Body() updateUserDto: UpdateUserDto) {
+    return await this.usersService.updateUserInformation(req.user.sub, updateUserDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    // return this.usersService.delete(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   // return this.usersService.delete(+id);
+  // }
 }

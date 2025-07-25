@@ -28,4 +28,8 @@ export class UsersRepository implements IUsersRepository {
   async updatePassword(email: string, newHashedPassword: string): Promise<void> {
     await this.usersRepository.update({ email }, { password: newHashedPassword });
   }
+  async updateUser(id: number, userData: Partial<Users>): Promise<Users | null> {
+    await this.usersRepository.update({ id }, userData);
+    return await this.findById(id);
+  }
 }
