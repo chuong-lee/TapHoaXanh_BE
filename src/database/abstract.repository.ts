@@ -2,7 +2,7 @@ import { DeepPartial, FindOptionsWhere, ObjectLiteral, Repository } from 'typeor
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 export abstract class BaseRepository<T extends ObjectLiteral> {
-  constructor(private readonly repository: Repository<T>) {}
+  constructor(protected readonly repository: Repository<T>) {}
 
   async findAll() {
     return await this.repository.find();

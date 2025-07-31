@@ -14,10 +14,9 @@ export class CartItem extends AbstractEntity<CartItem> {
   @Column()
   price: number;
 
-  
-  @ManyToOne(() => Product, (product) => product.cartItems) 
+  @ManyToOne(() => Product, (product) => product.cartItems)
   product: Product;
 
-  @ManyToOne(() => Cart, (cart) => cart.cartItems) 
+  @ManyToOne(() => Cart, (cart) => cart.cartItems)
   cart: Cart;
 }

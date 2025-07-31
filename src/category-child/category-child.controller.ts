@@ -1,6 +1,5 @@
 // src/category-child/category-child.controller.ts
-import { Controller, Get, Post, Body,Param,Patch,Delete,} 
-from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, Delete } from '@nestjs/common';
 import { CategoryChildService } from './category-child.service';
 import { CreateCategoryChildDto } from './dto/create-category-child.dto';
 import { UpdateCategoryChildDto } from './dto/update-category-child.dto';
