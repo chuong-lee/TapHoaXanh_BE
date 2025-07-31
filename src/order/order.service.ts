@@ -10,6 +10,7 @@ import { Order } from './entities/order.entity';
 import { PaymentLog } from './entities/payment-log.entity';
 import { PaymentStatus } from './enums/payment-status.enum';
 import { PaymentMethod } from './enums/payment-method.enum';
+import { VoucherType } from '../voucher/enums/voucher-type.enum';
 import * as crypto from 'crypto';
 import * as qs from 'qs';
 import axios from 'axios';
@@ -27,23 +28,31 @@ export class OrderService {
   // Order CRUD operations
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
     const order = this.orderRepository.create({
-      ...createOrderDto,
+      price: createOrderDto.price,
+      quantity: createOrderDto.quantity,
+      images: createOrderDto.images,
+      comment: createOrderDto.comment,
       currency: createOrderDto.currency || 'VND',
       payment_status: createOrderDto.payment_status || PaymentStatus.PENDING,
+      payment_amount: createOrderDto.payment_amount,
+      payment_description: createOrderDto.payment_description,
+      payment_method: createOrderDto.payment_method,
+      transaction_id: createOrderDto.transaction_id,
+      gateway_response: createOrderDto.gateway_response,
     });
     return this.orderRepository.save(order);
   }
 
   async findAll(): Promise<Order[]> {
     return this.orderRepository.find({
-      relations: ['users', 'voucher', 'orderItem', 'rating'],
+      relations: ['users', 'voucher', 'orderItem'],
     });
   }
 
   async findOne(id: number): Promise<Order> {
     const order = await this.orderRepository.findOne({
       where: { id },
-      relations: ['users', 'voucher', 'orderItem', 'rating'],
+      relations: ['users', 'voucher', 'orderItem'],
     });
     if (!order) throw new NotFoundException(`Order with id ${id} not found`);
     return order;
@@ -62,30 +71,58 @@ export class OrderService {
 
   // Payment operations
   async createCharge(createPaymentDto: CreatePaymentDto): Promise<PaymentResponseDto> {
+    // Tính tổng tiền các sản phẩm
+    let total = 0;
+    if (Array.isArray((createPaymentDto as any).orderItems)) {
+      for (const item of (createPaymentDto as any).orderItems) {
+        total += (item.unit_price || 0) * (item.quantity || 1);
+      }
+    } else {
+      total = (createPaymentDto as any).amount || 0;
+    }
+
+    // Áp dụng voucher nếu có (hỗ trợ cả giảm giá và freeship)
+    let discount = 0;
+    let freeship = 0;
+    let voucherInfo = null;
+    let shippingFee = (createPaymentDto as any).shippingFee || 0;
+    if ((createPaymentDto as any).voucher) {
+      voucherInfo = (createPaymentDto as any).voucher;
+      if (voucherInfo && total >= (voucherInfo.min_order_value || 0)) {
+        if (voucherInfo.type === VoucherType.DISCOUNT) {
+          discount = Math.min(voucherInfo.max_discount || 0, total * 0.1);
+        } else if (voucherInfo.type === VoucherType.FREESHIP) {
+          freeship = Math.min(voucherInfo.max_discount || 0, shippingFee);
+        }
+      }
+    }
+    const finalAmount = total - discount - freeship + (shippingFee - freeship);
+
     // Tạo order mới với payment info
     const order = this.orderRepository.create({
-      payment_amount: createPaymentDto.amount,
-      currency: createPaymentDto.currency || 'VND',
-      payment_source: createPaymentDto.source,
-      payment_description: createPaymentDto.description,
-      payment_method: createPaymentDto.payment_method,
-      payment_status: PaymentStatus.PENDING,
-      // Có thể thêm các field order khác nếu cần
-      price: createPaymentDto.amount,
+      price: finalAmount,
       quantity: 1,
       images: '',
       comment: createPaymentDto.description || '',
+      payment_amount: finalAmount,
+      currency: createPaymentDto.currency || 'VND',
+      payment_description: createPaymentDto.description,
+      payment_method: createPaymentDto.payment_method,
+      payment_status: PaymentStatus.PENDING,
+      discount,
+      freeship,
+      shipping_fee: shippingFee,
+      voucher: voucherInfo,
     });
-
-    const saved = await this.orderRepository.save(order);
+    const savedOrder = await this.orderRepository.save(order);
 
     switch (createPaymentDto.payment_method) {
       case PaymentMethod.MOMO:
-        return this.createMomoPayment(saved);
+        return this.createMomoPayment(savedOrder);
       case PaymentMethod.VNPAY:
-        return this.createVnpayPayment(saved);
+        return this.createVnpayPayment(savedOrder);
       case PaymentMethod.BANK_TRANSFER:
-        return this.createBankTransferPayment(saved);
+        return this.createBankTransferPayment(savedOrder, finalAmount);
       default:
         throw new InternalServerErrorException('Unsupported payment method');
     }
@@ -210,7 +247,7 @@ export class OrderService {
     };
   }
 
-  private async createBankTransferPayment(order: Order): Promise<PaymentResponseDto> {
+  private async createBankTransferPayment(order: Order, finalAmount?: number): Promise<PaymentResponseDto> {
     // Thông tin tài khoản ngân hàng của bạn - có thể đưa vào environment variables
     const bankInfo = {
       bankName: process.env.BANK_NAME || 'Ngân hàng TMCP Ngoại thương Việt Nam (Vietcombank)',
@@ -219,18 +256,17 @@ export class OrderService {
     };
 
     // Tạo nội dung chuyển khoản với mã đơn hàng
-    const transferContent = `TapHoaXanh ${order.id} ${
-      order.payment_description || 'Thanh toan don hang'
-    }`.substring(0, 50);
+    const transferContent = `TapHoaXanh ${order.id} ${order.payment_description || 'Thanh toan don hang'}`.substring(
+      0,
+      50,
+    );
+
+    // Số tiền cuối cùng đã tính giảm giá
+    const amount = finalAmount !== undefined ? finalAmount : order.payment_amount || 0;
 
     // Tạo QR code URL (có thể sử dụng API của ngân hàng hoặc service tạo QR)
-    const qrCodeData = `${bankInfo.accountNumber}|${bankInfo.accountName}|${order.payment_amount}|${transferContent}`;
-    const qrCodeUrl = await this.generateQRCode(
-      qrCodeData,
-      order.payment_amount || 0,
-      bankInfo.accountNumber,
-      transferContent,
-    );
+    const qrCodeData = `${bankInfo.accountNumber}|${bankInfo.accountName}|${amount}|${transferContent}`;
+    const qrCodeUrl = await this.generateQRCode(qrCodeData, amount, bankInfo.accountNumber, transferContent);
 
     // Log payment info
     await this.logRepo.save({
@@ -239,7 +275,7 @@ export class OrderService {
       paymentMethod: 'bank_transfer',
       rawData: {
         bankInfo,
-        amount: order.payment_amount,
+        amount,
         transferContent,
         qrCode: qrCodeUrl,
       },
@@ -252,7 +288,7 @@ export class OrderService {
       accountNumber: bankInfo.accountNumber,
       accountName: bankInfo.accountName,
       qrCode: qrCodeUrl,
-      amount: order.payment_amount || 0,
+      amount,
       transferContent,
       note: `Vui lòng chuyển khoản đúng nội dung: "${transferContent}" để được xử lý tự động`,
     };
@@ -270,7 +306,6 @@ export class OrderService {
     // Format theo chuẩn VietQR
     const bankCode = '970436'; // Mã ngân hàng Vietcombank
     const qrString = `https://img.vietqr.io/image/${bankCode}-${accountNumber}-compact2.jpg?amount=${amount}&addInfo=${encodeURIComponent(content)}`;
-    
     return qrString;
   }
 

@@ -110,12 +110,6 @@ POST /order/payment/confirm-bank-transfer
 3. **Database schema đã thay đổi** - Cần chạy migration để cập nhật
 4. **PaymentLog vẫn được giữ** - Để tracking các giao dịch payment gateway
 
-## 🚀 Chạy migration:
-
-```bash
-npm run migration:run
-```
-
 ## ✨ Lợi ích:
 
 - ✅ **Đơn giản hóa database schema** - Ít bảng hơn, ít relation phức tạp

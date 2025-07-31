@@ -12,9 +12,6 @@ export class Rating extends AbstractEntity<Rating> {
   @Column()
   rating: number;
 
-  @ManyToOne(() => Order, (order) => order.rating)
-  order: Order;
-
   @ManyToOne(() => Users, (users) => users.rating)
   users: Users;
 

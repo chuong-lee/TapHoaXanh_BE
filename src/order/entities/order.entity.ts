@@ -1,16 +1,21 @@
 import { AbstractEntity } from 'src/database/database.entity';
 import { OrderItem } from 'src/order_item/entities/order_item.entity';
-import { Rating } from 'src/rating/entities/rating.entity';
 import { Users } from 'src/users/entities/users.entity';
 import { Voucher } from 'src/voucher/entities/voucher.entity';
-import { PaymentMethod } from '../enums/payment-method.enum';
-import { PaymentStatus } from '../enums/payment-status.enum';
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
-
 @Entity('order')
 export class Order extends AbstractEntity<Order> {
-  @Column()
+
+  @Column({ type: 'float', nullable: true })
   price: number;
+  @Column({ type: 'float', nullable: true })
+  discount?: number;
+
+  @Column({ type: 'float', nullable: true })
+  freeship?: number;
+
+  @Column({ type: 'float', nullable: true })
+  shipping_fee?: number;
 
   @Column()
   quantity: number;
@@ -21,32 +26,18 @@ export class Order extends AbstractEntity<Order> {
   @Column()
   comment: string;
 
-  // Payment fields integrated into Order
-  @Column({ nullable: true })
+  // Payment fields
+  @Column({ type: 'float', nullable: true })
   payment_amount?: number;
-
-  @Column({ default: 'VND' })
-  currency: string;
-
-  @Column({ nullable: true })
-  payment_source?: string;
 
   @Column({ nullable: true })
   payment_description?: string;
 
-  @Column({
-    type: 'enum',
-    enum: PaymentMethod,
-    nullable: true,
-  })
-  payment_method?: PaymentMethod;
+  @Column({ nullable: true })
+  payment_method?: string;
 
-  @Column({
-    type: 'enum',
-    enum: PaymentStatus,
-    default: PaymentStatus.PENDING,
-  })
-  payment_status: PaymentStatus;
+  @Column({ nullable: true })
+  payment_status?: string;
 
   @Column({ nullable: true })
   transaction_id?: string;
@@ -54,15 +45,15 @@ export class Order extends AbstractEntity<Order> {
   @Column({ nullable: true })
   gateway_response?: string;
 
+  @Column({ nullable: true })
+  currency?: string;
+
   @ManyToOne(() => Users, (users) => users.order)
   users: Users;
 
-  @OneToMany(() => Voucher, (voucher) => voucher.order)
-  voucher: Voucher[];
+  @ManyToOne(() => Voucher, (voucher) => voucher.order, { nullable: true })
+  voucher: Voucher;
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
   orderItem: OrderItem[];
-
-  @OneToMany(() => Rating, (rating) => rating.order)
-  rating: Rating[];
 }
