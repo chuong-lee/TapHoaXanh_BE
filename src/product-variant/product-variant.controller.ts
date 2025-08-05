@@ -12,14 +12,14 @@ export class ProductVariantController {
     return this.productVariantService.create(createProductVariantDto);
   }
 
-  @Get()
-  findAll() {
-    return this.productVariantService.findAll();
-  }
+  // @Get()
+  // findAll() {
+  //   return this.productVariantService.findAll();
+  // }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.productVariantService.findOne(+id);
+    return this.productVariantService.findByProduct(+id);
   }
 
   @Patch(':id')
