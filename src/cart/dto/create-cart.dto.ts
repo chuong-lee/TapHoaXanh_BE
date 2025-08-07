@@ -1,13 +1,14 @@
 // dto/create-cart.dto.ts
-import { IsNumber } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNumber, Min } from 'class-validator';
 
 export class CreateCartDto {
   @IsNumber()
-  userId: number;
-
-  @IsNumber()
+  @ApiProperty({ description: 'ID của sản phẩm' })
   productId: number;
 
   @IsNumber()
-  quantity!: number;
+  @Min(1, { message: 'Số lượng phải lớn hơn 0' })
+  @ApiProperty({ description: 'Số lượng sản phẩm', minimum: 1 })
+  quantity: number;
 }

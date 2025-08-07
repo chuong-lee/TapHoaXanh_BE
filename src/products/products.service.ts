@@ -4,6 +4,7 @@ import { CategoryRepository } from 'src/category/categories.reposirory';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductRepository } from './products.repository';
+import { ProductFilterDto } from './dto/Filter-product.dto';
 
 @Injectable()
 export class ProductsService {
@@ -41,7 +42,6 @@ export class ProductsService {
     if (!existProduct) throw new NotFoundException('Sản phẩm không tồn tại');
     return existProduct;
   }
-  
 
   findOne(id: number) {
     return `This action returns a #${id} product`;
@@ -83,5 +83,8 @@ export class ProductsService {
   async restore(id: number) {
     await this.productRepository.update(id, { deletedAt: null });
     return { message: 'Khôi phục thành công' };
+  }
+  async filterProducts(query: ProductFilterDto) {
+    return this.productRepository.filterProducts(query);
   }
 }
