@@ -9,7 +9,6 @@ import { Rating } from 'src/rating/entities/rating.entity';
 import { Wishlist } from 'src/wishlist/entities/wishlist.entity';
 import { CategoryChild } from '../../category-child/entities/category-child.entity';
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
-import { Cart } from 'src/cart/entities/cart.entity';
 
 import { JoinColumn } from 'typeorm';
 
@@ -56,9 +55,6 @@ export class Product extends AbstractEntity<Product> {
 
   @OneToMany(() => ProductVariant, (variant) => variant.product)
   variants: ProductVariant[];
-
-  @OneToMany(() => Cart, (cart) => cart.product)
-  carts: Cart[];
 
   @OneToMany(() => ProductImage, (image) => image.product)
   image: ProductImage;
