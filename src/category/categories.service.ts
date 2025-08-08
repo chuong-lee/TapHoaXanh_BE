@@ -13,6 +13,9 @@ export class CategoriesService {
     if (existCategory) {
       throw new BadRequestException('Tên danh mục đã tồn tại');
     }
+    if (!createCategoryDto.parent_id) {
+      createCategoryDto.parent_id = 0;
+    }
     const category = this.categoryRepository.create(createCategoryDto);
     const saveCategory = await this.categoryRepository.save(category);
     return saveCategory;

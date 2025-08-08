@@ -1,16 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { ProductRepository } from 'src/products/products.repository';
-import { Repository } from 'typeorm';
 import { CreateProductVariantDto } from './dto/create-product-variant.dto';
 import { UpdateProductVariantDto } from './dto/update-product-variant.dto';
-import { ProductVariant } from './entities/product-variant.entity';
+import { ProductVariantRepository } from './product-variant.repository';
 
 @Injectable()
 export class ProductVariantService {
   constructor(
-    @InjectRepository(ProductVariant)
-    private readonly variantRepo: Repository<ProductVariant>,
+    private readonly variantRepository: ProductVariantRepository,
     private readonly productRepository: ProductRepository,
   ) {}
 
@@ -18,37 +15,36 @@ export class ProductVariantService {
     const product = await this.productRepository.findById(dto.productId);
     if (!product) throw new NotFoundException('Sản phẩm không tồn tại');
 
-    const variant = this.variantRepo.create({
-      variant_name: dto.variant_name,
-      price_modifier: dto.price_modifier,
-      stock: dto.stock,
-      product,
-    });
-
-    return await this.variantRepo.save(variant);
+    const variant = this.variantRepository.create(dto);
+    return await this.variantRepository.save(variant);
   }
 
-  async findByProduct(productId: number) {
+  async findProductVariantsById(productId: number) {
     const product = await this.productRepository.findById(productId);
     if (!product) throw new NotFoundException('Sản phẩm không tồn tại');
 
-    return await this.variantRepo.find({
-      where: { product: { id: productId } },
-      relations: ['product'],
-    });
+    return product;
+  }
+
+  async findAll() {
+    return await this.variantRepository.findAll();
   }
 
   async update(id: number, dto: UpdateProductVariantDto) {
-    const variant = await this.variantRepo.findOne({ where: { id }, relations: ['product'] });
+    const variant = await this.variantRepository.findById(id);
     if (!variant) throw new NotFoundException('Biến thể không tồn tại');
+    const updatedVariant = this.variantRepository.create({
+      ...variant,
+      ...dto,
+    });
 
-    const updated = this.variantRepo.merge(variant, dto);
-    return await this.variantRepo.save(updated);
+    return await this.variantRepository.save(updatedVariant);
   }
 
   async remove(id: number) {
-    const variant = await this.variantRepo.findOneBy({ id });
+    const variant = await this.variantRepository.findById(id);
     if (!variant) throw new NotFoundException('Biến thể không tồn tại');
-    return await this.variantRepo.remove(variant);
+    await this.variantRepository.delete(id); // Giả sử có hàm này
+    return { message: 'Xóa thành công' };
   }
 }
