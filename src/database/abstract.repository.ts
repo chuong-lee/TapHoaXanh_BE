@@ -25,7 +25,7 @@ export abstract class BaseRepository<T extends ObjectLiteral> {
   }
 
   async delete(id: number) {
-    return await this.repository.softDelete(id);
+    return await this.repository.delete(id);
   }
 
   async update(id: number, data: QueryDeepPartialEntity<T>) {

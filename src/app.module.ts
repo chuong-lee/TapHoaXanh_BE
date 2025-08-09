@@ -21,10 +21,17 @@ import { NewsModule } from './news/news.module';
 import { AuthModule } from './auth/auth.module';
 import { CategoryChildModule } from './category-child/category-child.module';
 import { PaymentModule } from './payment/payment.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ cache: true, isGlobal: true }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'), // vì __dirname đang ở trong dist
+      serveRoot: '/uploads',
+    }),
+
     AuthModule,
     ProductsModule,
     CategoriesModule,
