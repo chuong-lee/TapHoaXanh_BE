@@ -19,7 +19,7 @@ export class ProductVariantController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.productVariantService.findOne(+id);
+    return this.productVariantService.findProductVariantsById(+id);
   }
 
   @Patch(':id')

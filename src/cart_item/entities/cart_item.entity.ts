@@ -1,11 +1,18 @@
 import { Cart } from 'src/cart/entities/cart.entity';
 import { AbstractEntity } from 'src/database/database.entity';
 import { Product } from 'src/products/entities/product.entity';
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 @Entity('cart_item')
 export class CartItem extends AbstractEntity<CartItem> {
-  @Column()
+  constructor(cart: Cart, quantity: number, price: number, product: Product) {
+    super();
+    this.cart = cart;
+    this.quantity = quantity;
+    this.price = price;
+    this.product = product;
+  }
+  @Column({ type: 'int', default: 1 })
   quantity: number;
 
   @Column()
@@ -18,5 +25,6 @@ export class CartItem extends AbstractEntity<CartItem> {
   product: Product;
 
   @ManyToOne(() => Cart, (cart) => cart.cartItems)
+  @JoinColumn({ name: 'cartId' })
   cart: Cart;
 }

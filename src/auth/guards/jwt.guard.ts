@@ -14,7 +14,7 @@ export class JwtGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const access_Token = this.extractTokenFromHeader(request);
     if (!access_Token) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('lỗi token');
     }
     try {
       const payload = await this.jwtService.verifyAsync(access_Token, {
@@ -28,7 +28,7 @@ export class JwtGuard implements CanActivate {
       }
       request['user'] = payload;
     } catch {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('lỗi user');
     }
     return true;
   }
