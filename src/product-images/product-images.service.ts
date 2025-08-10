@@ -81,6 +81,7 @@ export class ProductImagesService {
     return productImage;
   }
 
+<<<<<<< Updated upstream
   async update(id: number, updateProductImageDto: UpdateProductImageDto) {
     const productImage = await this.productImagesRepository.findById(id);
     if (!productImage) throw new NotFoundException(' Hình ảnh sản phẩm không tồn tại');
@@ -93,6 +94,10 @@ export class ProductImagesService {
       ...updateProductImageDto,
     });
     return await this.productImagesRepository.save(updatedImage);
+=======
+  update(id: number, _updateProductImageDto: UpdateProductImageDto) {
+    return `This action updates a #${id} productImage`;
+>>>>>>> Stashed changes
   }
 
   async remove(id: number) {

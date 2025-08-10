@@ -20,9 +20,12 @@ import { CartItemModule } from './cart_item/cart_item.module';
 import { NewsModule } from './news/news.module';
 import { AuthModule } from './auth/auth.module';
 import { CategoryChildModule } from './category-child/category-child.module';
+<<<<<<< Updated upstream
 import { PaymentModule } from './payment/payment.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+=======
+>>>>>>> Stashed changes
 
 @Module({
   imports: [

@@ -6,6 +6,7 @@ import { ProductVariantRepository } from './product-variant.repository';
 
 @Injectable()
 export class ProductVariantService {
+<<<<<<< Updated upstream
   constructor(
     private readonly variantRepository: ProductVariantRepository,
     private readonly productRepository: ProductRepository,
@@ -17,6 +18,10 @@ export class ProductVariantService {
 
     const variant = this.variantRepository.create(dto);
     return await this.variantRepository.save(variant);
+=======
+  create(_createProductVariantDto: CreateProductVariantDto) {
+    return 'This action adds a new productVariant';
+>>>>>>> Stashed changes
   }
 
   async findProductVariantsById(productId: number) {
@@ -30,6 +35,7 @@ export class ProductVariantService {
     return await this.variantRepository.findAll();
   }
 
+<<<<<<< Updated upstream
   async update(id: number, dto: UpdateProductVariantDto) {
     const variant = await this.variantRepository.findById(id);
     if (!variant) throw new NotFoundException('Biến thể không tồn tại');
@@ -39,6 +45,10 @@ export class ProductVariantService {
     });
 
     return await this.variantRepository.save(updatedVariant);
+=======
+  update(id: number, _updateProductVariantDto: UpdateProductVariantDto) {
+    return `This action updates a #${id} productVariant`;
+>>>>>>> Stashed changes
   }
 
   async remove(id: number) {
