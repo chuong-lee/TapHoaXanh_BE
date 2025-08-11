@@ -14,7 +14,7 @@ export class JwtGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const access_Token = this.extractTokenFromHeader(request);
     if (!access_Token) {
-      throw new UnauthorizedException('lỗi token');
+      throw new UnauthorizedException('Token không hợp lệ hoặc đã hết hạn');
     }
     try {
       const payload = await this.jwtService.verifyAsync(access_Token, {
