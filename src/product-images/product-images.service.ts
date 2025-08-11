@@ -1,35 +1,138 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { ProductRepository } from 'src/products/products.repository';
 import { CreateProductImageDto } from './dto/create-product-image.dto';
-import { UpdateProductImageDto } from './dto/update-product-image.dto';
 import { ProductImagesRepository } from './prduct-images.repository';
+import { UpdateProductImageDto } from './dto/update-product-image.dto';
+import * as fs from 'fs';
+import * as util from 'util';
+import { dirname, join } from 'path';
 
+const writeFile = util.promisify(fs.writeFile);
 @Injectable()
 export class ProductImagesService {
   constructor(
     private readonly productImagesRepository: ProductImagesRepository,
     private readonly productRepository: ProductRepository,
   ) {}
-  async create(createProductImageDto: CreateProductImageDto) {
+
+  async handleFileUpload(files: Express.Multer.File[], folderName: string) {
+    try {
+      const uploadDir = join(__dirname, '..', '..', 'uploads', folderName);
+      console.log('📂 Saving files to:', uploadDir);
+
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+        console.log('✅ Folder created');
+      }
+
+      const savedFiles = [];
+
+      for (const file of files) {
+        const filename = Date.now() + '-' + file.originalname;
+        const filePath = join(uploadDir, filename);
+
+        await writeFile(filePath, file.buffer);
+        savedFiles.push({
+          filename,
+          path: `/uploads/${folderName}/${filename}`, // FE sẽ load được qua prefix
+        });
+      }
+
+      return {
+        message: 'Upload thành công',
+        files: savedFiles,
+      };
+    } catch (error) {
+      console.error('Upload lỗi:', error);
+      throw new InternalServerErrorException('Không thể upload file');
+    }
+  }
+
+  async create(createProductImageDto: CreateProductImageDto, images: Express.Multer.File[]) {
     const product = await this.productRepository.findById(createProductImageDto.productId);
-    if (!product) throw new NotFoundException('San pham khong ton tai');
-    const productImage = await this.productImagesRepository.create({ ...createProductImageDto, product });
-    return await this.productImagesRepository.save(productImage);
+    if (!product) throw new NotFoundException('Sản phẩm không tồn tại');
+
+    // Gọi upload file
+    const uploadResult = await this.handleFileUpload(images, product.id.toString());
+
+    // Kiểm tra uploadResult.files có tồn tại và là array
+    if (!uploadResult.files || !Array.isArray(uploadResult.files)) {
+      throw new InternalServerErrorException('Upload ảnh thất bại');
+    }
+
+    const listImage = uploadResult.files.map((file) =>
+      this.productImagesRepository.create({
+        product: product,
+        image_url: file.path,
+      }),
+    );
+
+    return await this.productImagesRepository.saveMutiple(listImage);
   }
 
-  findAll() {
-    return `This action returns all productImages`;
+  // Lấy ra tất cả hình ảnh của sản phẩm
+  async findAll() {
+    return await this.productImagesRepository.getAllProductImages();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} productImage`;
+  async findOne(id: number) {
+    const productImage = await this.productImagesRepository.findById(id);
+    if (!productImage) throw new NotFoundException('Hình ảnh sản phẩm không tồn tại');
+    return productImage;
   }
 
-  update(id: number, updateProductImageDto: UpdateProductImageDto) {
-    return `This action updates a #${id} productImage`;
+  async update(id: number, updateProductImageDto: UpdateProductImageDto) {
+    const productImage = await this.productImagesRepository.findById(id);
+    if (!productImage) throw new NotFoundException(' Hình ảnh sản phẩm không tồn tại');
+    if (updateProductImageDto.productId) {
+      const product = await this.productRepository.findById(updateProductImageDto.productId);
+      if (!product) throw new NotFoundException('Sản phẩm không tồn tại');
+    }
+    const updatedImage = this.productImagesRepository.create({
+      ...productImage,
+      ...updateProductImageDto,
+    });
+    return await this.productImagesRepository.save(updatedImage);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} productImage`;
+  async remove(id: number) {
+    const productImage = await this.productImagesRepository.findById(id);
+    if (!productImage) throw new NotFoundException('Hình ảnh sản phẩm không tồn tại');
+
+    // Lấy đường dẫn tương đối bỏ dấu "/" ở đầu
+    const relativePath = productImage.image_url.startsWith('/')
+      ? productImage.image_url.slice(1)
+      : productImage.image_url;
+
+    // Đường dẫn đầy đủ tới file
+    const filePath = join(__dirname, '..', '..', relativePath);
+
+    try {
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+        console.log(`Đã xóa file: ${filePath}`);
+
+        // Lấy folder chứa file
+        const folderPath = dirname(filePath);
+
+        // Nếu folderPath là 'uploads' thì KHÔNG xóa
+        if (folderPath.endsWith('uploads')) return;
+
+        // Kiểm tra nếu folder rỗng thì xóa
+        const files = fs.readdirSync(folderPath);
+        if (files.length === 0) {
+          fs.rmdirSync(folderPath);
+          console.log(`Đã xóa folder rỗng: ${folderPath}`);
+        }
+      }
+    } catch (err) {
+      console.error(`Không thể xoá file hoặc folder:`, err);
+    }
+
+    await this.productImagesRepository.delete(id);
+
+    return {
+      message: `Xoá hình ảnh sản phẩm thành công`,
+    };
   }
 }
