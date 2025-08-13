@@ -8,6 +8,7 @@ import * as util from 'util';
 import { dirname, join } from 'path';
 
 const writeFile = util.promisify(fs.writeFile);
+
 @Injectable()
 export class ProductImagesService {
   constructor(
@@ -34,7 +35,7 @@ export class ProductImagesService {
         await writeFile(filePath, file.buffer);
         savedFiles.push({
           filename,
-          path: `/uploads/${folderName}/${filename}`, // FE sẽ load được qua prefix
+          path: `/uploads/${folderName}/${filename}`,
         });
       }
 
@@ -52,10 +53,8 @@ export class ProductImagesService {
     const product = await this.productRepository.findById(createProductImageDto.productId);
     if (!product) throw new NotFoundException('Sản phẩm không tồn tại');
 
-    // Gọi upload file
     const uploadResult = await this.handleFileUpload(images, product.id.toString());
 
-    // Kiểm tra uploadResult.files có tồn tại và là array
     if (!uploadResult.files || !Array.isArray(uploadResult.files)) {
       throw new InternalServerErrorException('Upload ảnh thất bại');
     }
@@ -70,7 +69,6 @@ export class ProductImagesService {
     return await this.productImagesRepository.saveMutiple(listImage);
   }
 
-  // Lấy ra tất cả hình ảnh của sản phẩm
   async findAll() {
     return await this.productImagesRepository.getAllProductImages();
   }
@@ -81,10 +79,9 @@ export class ProductImagesService {
     return productImage;
   }
 
-<<<<<<< Updated upstream
   async update(id: number, updateProductImageDto: UpdateProductImageDto) {
     const productImage = await this.productImagesRepository.findById(id);
-    if (!productImage) throw new NotFoundException(' Hình ảnh sản phẩm không tồn tại');
+    if (!productImage) throw new NotFoundException('Hình ảnh sản phẩm không tồn tại');
     if (updateProductImageDto.productId) {
       const product = await this.productRepository.findById(updateProductImageDto.productId);
       if (!product) throw new NotFoundException('Sản phẩm không tồn tại');
@@ -94,22 +91,16 @@ export class ProductImagesService {
       ...updateProductImageDto,
     });
     return await this.productImagesRepository.save(updatedImage);
-=======
-  update(id: number, _updateProductImageDto: UpdateProductImageDto) {
-    return `This action updates a #${id} productImage`;
->>>>>>> Stashed changes
   }
 
   async remove(id: number) {
     const productImage = await this.productImagesRepository.findById(id);
     if (!productImage) throw new NotFoundException('Hình ảnh sản phẩm không tồn tại');
 
-    // Lấy đường dẫn tương đối bỏ dấu "/" ở đầu
     const relativePath = productImage.image_url.startsWith('/')
       ? productImage.image_url.slice(1)
       : productImage.image_url;
 
-    // Đường dẫn đầy đủ tới file
     const filePath = join(__dirname, '..', '..', relativePath);
 
     try {
@@ -117,13 +108,10 @@ export class ProductImagesService {
         fs.unlinkSync(filePath);
         console.log(`Đã xóa file: ${filePath}`);
 
-        // Lấy folder chứa file
         const folderPath = dirname(filePath);
 
-        // Nếu folderPath là 'uploads' thì KHÔNG xóa
         if (folderPath.endsWith('uploads')) return;
 
-        // Kiểm tra nếu folder rỗng thì xóa
         const files = fs.readdirSync(folderPath);
         if (files.length === 0) {
           fs.rmdirSync(folderPath);

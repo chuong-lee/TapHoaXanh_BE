@@ -10,7 +10,11 @@ import { UsersModule } from './users/users.module';
 import { AddressModule } from './address/address.module';
 import { VoucherModule } from './voucher/voucher.module';
 import { OrderModule } from './order/order.module';
-// import { PaymentModule } from './payment/payment.module';
+import { PaymentModule } from './payment/payment.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+
+import { AuthModule } from './auth/auth.module';
 import { DeliveryModule } from './delivery/delivery.module';
 import { OrderItemModule } from './order_item/order_item.module';
 import { RatingModule } from './rating/rating.module';
@@ -18,23 +22,15 @@ import { WishlistModule } from './wishlist/wishlist.module';
 import { CartModule } from './cart/cart.module';
 import { CartItemModule } from './cart_item/cart_item.module';
 import { NewsModule } from './news/news.module';
-import { AuthModule } from './auth/auth.module';
-import { CategoryChildModule } from './category-child/category-child.module';
-<<<<<<< Updated upstream
-import { PaymentModule } from './payment/payment.module';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
-=======
->>>>>>> Stashed changes
+import { CategoryChildModule } from './category_child/category_child.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ cache: true, isGlobal: true }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'uploads'), // vì __dirname đang ở trong dist
+      rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads',
     }),
-
     AuthModule,
     ProductsModule,
     CategoriesModule,
