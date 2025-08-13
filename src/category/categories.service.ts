@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { CategoryRepository } from './categories.reposirory';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { FilterCategoryDto } from './dto/filter-category.dto';
 
 @Injectable()
 export class CategoriesService {
@@ -23,6 +24,10 @@ export class CategoriesService {
 
   async findAll() {
     return await this.categoryRepository.findAll();
+  }
+
+  async getCategoriesWithPagination(filter: FilterCategoryDto) {
+    return await this.categoryRepository.filterCategories(filter);
   }
 
   async findOne(id: number) {

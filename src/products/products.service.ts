@@ -38,7 +38,7 @@ export class ProductsService {
 
   // show sp theo id
   async productDetail(id: number) {
-    const existProduct = await this.productRepository.findById(id);
+    const existProduct = await this.productRepository.findOne(id);
     if (!existProduct) throw new NotFoundException('Sản phẩm không tồn tại');
     return existProduct;
   }

@@ -26,6 +26,7 @@ export class ProductRepository extends BaseRepository<Product> {
   async findOne(id: number): Promise<Product | null> {
     return this.productRepository.findOne({
       where: { id },
+      relations: ['category', 'brand'],
     });
   }
   async filterProducts(query: ProductFilterDto) {

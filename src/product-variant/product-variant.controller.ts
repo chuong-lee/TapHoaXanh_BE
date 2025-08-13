@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { ProductVariantService } from './product-variant.service';
 import { CreateProductVariantDto } from './dto/create-product-variant.dto';
 import { UpdateProductVariantDto } from './dto/update-product-variant.dto';
+import { FilterProductVariantDto } from './dto/filter-product-variant.dto';
 
 @Controller('product-variant')
 export class ProductVariantController {
@@ -15,6 +16,11 @@ export class ProductVariantController {
   @Get()
   findAll() {
     return this.productVariantService.findAll();
+  }
+
+  @Get('search')
+  getProductVariantsWithPagination(@Query() query: FilterProductVariantDto) {
+    return this.productVariantService.getProductVariantsWithPagination(query);
   }
 
   @Get(':id')
