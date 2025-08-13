@@ -22,7 +22,12 @@ import { WishlistModule } from './wishlist/wishlist.module';
 import { CartModule } from './cart/cart.module';
 import { CartItemModule } from './cart_item/cart_item.module';
 import { NewsModule } from './news/news.module';
+<<<<<<< Updated upstream
 import { CategoryChildModule } from './category_child/category_child.module';
+=======
+import { AuthModule } from './auth/auth.module';
+import { CategoryChildModule } from './category-child/category-child.module';
+>>>>>>> Stashed changes
 
 @Module({
   imports: [
