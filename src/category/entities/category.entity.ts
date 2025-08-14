@@ -16,7 +16,6 @@ export class Category extends AbstractEntity<Category> {
 
   @OneToMany(() => Product, (product) => product.category)
   product: Product[];
-
   @OneToMany(() => CategoryChild, (child) => child.parentCategory)
   children: CategoryChild[];
 }

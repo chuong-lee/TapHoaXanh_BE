@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CategoryRepository } from './categories.reposirory';
 import { CreateCategoryDto } from './dto/create-category.dto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
 import { FilterCategoryDto } from './dto/filter-category.dto';
+import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @Injectable()
 export class CategoriesService {
@@ -67,6 +67,7 @@ export class CategoriesService {
     // kiểm tra tồn tại trước khi xóa
     const existCategory = await this.categoryRepository.findById(id);
     if (!existCategory) throw new NotFoundException('Danh mục không tồn tại');
+    await this.categoryRepository.deleteCategoryWithParentId({ parent_id: id }); // Giả sử có hàm này
     await this.categoryRepository.delete(id); // Giả sử có hàm này
     return { message: 'Xóa thành công' };
   }

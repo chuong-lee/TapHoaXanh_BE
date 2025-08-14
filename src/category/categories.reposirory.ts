@@ -57,7 +57,7 @@ export class CategoryRepository extends BaseRepository<Category> {
       dataQb.andWhere('child.parent_id = :parentId', { parentId });
     }
 
-    dataQb.orderBy('child.id', 'ASC').limit(limit).offset(offset);
+    dataQb.orderBy('child.id', 'DESC').limit(limit).offset(offset);
 
     // --- Lấy data ---
     const data = await dataQb.getRawMany();
@@ -71,5 +71,9 @@ export class CategoryRepository extends BaseRepository<Category> {
         lastPage: Math.ceil(total / limit),
       },
     };
+  }
+
+  async deleteCategoryWithParentId(condition: Pick<Category, 'parent_id'>) {
+    return await this.categoryRepository.delete(condition);
   }
 }
