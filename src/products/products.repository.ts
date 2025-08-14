@@ -34,7 +34,7 @@ export class ProductRepository extends BaseRepository<Product> {
     const qb = this.productRepository.createQueryBuilder('product');
 
     if (search) {
-      qb.andWhere('(LOWER(product.name) LIKE LOWER(:search))', {
+      qb.andWhere('(LOWER(product.name) LIKE LOWER(:search) OR LOWER(product.barcode) LIKE LOWER(:search))', {
         search: `%${search}%`,
       });
     }
@@ -56,7 +56,9 @@ export class ProductRepository extends BaseRepository<Product> {
       qb.andWhere('product.price <= :maxPrice', { maxPrice });
     }
 
-    qb.skip((page - 1) * limit).take(limit);
+    qb.orderBy('product.id', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit);
 
     const [items, total] = await qb.getManyAndCount();
 
