@@ -20,8 +20,12 @@ export abstract class BaseRepository<T extends ObjectLiteral> {
     return this.repository.save(data);
   }
 
+  saveMutiple(data: DeepPartial<T> | DeepPartial<T>[]): Promise<T | T[]> {
+    return this.repository.save(data as DeepPartial<T>[]);
+  }
+
   async delete(id: number) {
-    return await this.repository.softDelete(id);
+    return await this.repository.delete(id);
   }
 
   async update(id: number, data: QueryDeepPartialEntity<T>) {

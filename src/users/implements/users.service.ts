@@ -1,9 +1,12 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Users } from '../entities/users.entity';
-import { RegisterAuthDto } from 'src/auth/dto/register.dto';
 import { IUsersService } from '../interfaces/iusers-service.interface';
 import { IUsersRepository } from '../interfaces/iusers-repository.interface';
+import { UpdateUserDto } from '../dto/update-user.dto';
+import { UpdatePasswordDto } from '../dto/updatePassword-user.dto';
+import { plainToInstance } from 'class-transformer';
+import { ProfileDto } from '../dto/profile-user.dto';
 
 @Injectable()
 export class UsersService implements IUsersService {
@@ -22,17 +25,40 @@ export class UsersService implements IUsersService {
     return await this._usersRepository.findByEmail(email);
   }
 
-  async updatePassword(email: string, newPassword: string): Promise<boolean> {
-    const user = await this.findByEmail(email);
-    if (!user) throw new NotFoundException('Email không tồn tại');
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await this._usersRepository.updatePassword(email, hashedPassword);
+  async updatePassword(userId: number, updatePasswordDto: UpdatePasswordDto): Promise<boolean> {
+    const user = await this.findById(userId);
+    if (!user) throw new NotFoundException('Người dùng không tồn tại');
+
+    // Kiểm tra mật khẩu cũ
+    const isOldPasswordValid = await bcrypt.compare(updatePasswordDto.oldPassword, user.password);
+    if (!isOldPasswordValid) {
+      throw new BadRequestException('Mật khẩu cũ không đúng');
+    }
+    // Kiểm tra xác nhận mật khẩu
+    if (updatePasswordDto.newPassword !== updatePasswordDto.confirmPassword) {
+      throw new BadRequestException('Mật khẩu không khớp với mật khẩu mới');
+    }
+    // Hash mật khẩu mới
+    const hashedPassword = await bcrypt.hash(updatePasswordDto.newPassword, 10);
+    await this._usersRepository.updatePassword(user.email, hashedPassword);
     return true;
   }
 
   async findById(id: number): Promise<Users | null> {
     const user = await this._usersRepository.findById(id);
+
     if (!user) throw new NotFoundException('Người dùng không tồn tại');
     return user;
+  }
+
+  async updateUserInformation(id: number, updateUserDto: UpdateUserDto): Promise<Users | null> {
+    await this.findById(id);
+    return await this._usersRepository.updateUser(id, updateUserDto);
+  }
+
+  async getUserInformation(id: number): Promise<ProfileDto | null> {
+    const user = await this._usersRepository.findById(id);
+    if (!user) throw new NotFoundException('Người dùng không tồn tại');
+    return plainToInstance(ProfileDto, user);
   }
 }

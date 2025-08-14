@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { FilterCategoryDto } from './dto/filter-category.dto';
 
 @Controller('categories')
 export class CategoriesController {
@@ -17,15 +18,20 @@ export class CategoriesController {
     return this.categoriesService.findAll();
   }
 
+  @Get('search')
+  getCategoriesWithPagination(@Query() filter: FilterCategoryDto) {
+    return this.categoriesService.getCategoriesWithPagination(filter);
+  }
+
   @Patch('restore/:id')
   restore(@Param('id') id: number) {
     return this.categoriesService.restore(id);
   }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.categoriesService.findOne(+id);
-  // }
+  @Get(':id')
+  findOne(@Param('id') id: number) {
+    return this.categoriesService.findOne(id);
+  }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
