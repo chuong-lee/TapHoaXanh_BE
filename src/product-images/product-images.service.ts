@@ -135,4 +135,46 @@ export class ProductImagesService {
       message: `Xoá hình ảnh sản phẩm thành công`,
     };
   }
+
+  async removeProductImagesByProductId(id: number) {
+    const productImage = await this.productImagesRepository.findOneByProductId(id);
+    console.log('🚀 ~ ProductImagesService ~ removeProductImagesByProductId ~ productImage:', productImage);
+    if (!productImage) throw new NotFoundException('Không tìm thấy hình ảnh của sản phẩm này');
+
+    // Lấy đường dẫn tương đối bỏ dấu "/" ở đầu
+    const relativePath = productImage.image_url.startsWith('/')
+      ? productImage.image_url.slice(1)
+      : productImage.image_url;
+
+    // Đường dẫn đầy đủ tới file
+    const filePath = join(__dirname, '..', '..', relativePath);
+
+    try {
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+        console.log(`Đã xóa file: ${filePath}`);
+
+        // Lấy folder chứa file
+        const folderPath = dirname(filePath);
+
+        // Nếu folderPath là 'uploads' thì KHÔNG xóa
+        if (folderPath.endsWith('uploads')) return;
+
+        // Kiểm tra nếu folder rỗng thì xóa
+        const files = fs.readdirSync(folderPath);
+        if (files.length === 0) {
+          fs.rmdirSync(folderPath);
+          console.log(`Đã xóa folder rỗng: ${folderPath}`);
+        }
+      }
+    } catch (err) {
+      console.error(`Không thể xoá file hoặc folder:`, err);
+    }
+
+    await this.productImagesRepository.deleteByProductId(id);
+
+    return {
+      message: `Xoá hình ảnh sản phẩm thành công`,
+    };
+  }
 }

@@ -33,6 +33,11 @@ export class ProductVariantController {
     return this.productVariantService.update(+id, updateProductVariantDto);
   }
 
+  @Delete('/by-product/:id')
+  removeProductVariantByProductId(@Param('id') id: string) {
+    return this.productVariantService.removeProductVariantByProductId(+id);
+  }
+
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.productVariantService.remove(+id);

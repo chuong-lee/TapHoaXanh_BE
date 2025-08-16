@@ -1,9 +1,9 @@
-import { BaseRepository } from 'src/database/abstract.repository';
-import { Product } from './entities/product.entity';
-import { FindOptionsWhere, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { BaseRepository } from 'src/database/abstract.repository';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { ProductFilterDto } from './dto/Filter-product.dto';
+import { Product } from './entities/product.entity';
 
 @Injectable()
 export class ProductRepository extends BaseRepository<Product> {
@@ -13,7 +13,6 @@ export class ProductRepository extends BaseRepository<Product> {
   ) {
     super(productRepository);
   }
-
   async findByCode(barcode: string) {
     return this.productRepository.findOne({ where: { barcode } as FindOptionsWhere<Product> });
   }
@@ -28,6 +27,10 @@ export class ProductRepository extends BaseRepository<Product> {
       where: { id },
       relations: ['category', 'brand'],
     });
+  }
+
+  async deleteByCategoryId(id: number) {
+    return await this.productRepository.delete({ category: { id } });
   }
   async filterProducts(query: ProductFilterDto) {
     const { search, brand, category, minPrice, maxPrice, page = 1, limit = 10 } = query;

@@ -21,6 +21,16 @@ export class ProductVariantRepository extends BaseRepository<ProductVariant> {
     });
   }
 
+  async findOneByProductId(id: number): Promise<ProductVariant | null> {
+    return this.variantRepo.findOne({
+      where: { product: { id } },
+    });
+  }
+
+  async deleteByProductId(id: number) {
+    return await this.variantRepo.delete({ product: { id } });
+  }
+
   async filterProductVariant(query: FilterProductVariantDto) {
     const { search, product, minPrice, maxPrice, page = 1, limit = 10 } = query;
     const qb = this.variantRepo.createQueryBuilder('pv');
@@ -43,7 +53,9 @@ export class ProductVariantRepository extends BaseRepository<ProductVariant> {
       qb.andWhere('pv.price_modifier <= :maxPrice', { maxPrice });
     }
 
-    qb.skip((page - 1) * limit).take(limit);
+    qb.orderBy('pv.id', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit);
 
     const [items, total] = await qb.getManyAndCount();
 

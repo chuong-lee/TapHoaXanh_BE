@@ -45,6 +45,18 @@ export class ProductVariantService {
     return await this.variantRepository.save(updatedVariant);
   }
 
+  async removeProductVariantByProductId(productId: number) {
+    const variants = await this.variantRepository.findOneByProductId(productId);
+    console.log('🚀 ~ ProductVariantService ~ removeProductVariantByProductId ~ variants:', variants);
+
+    if (!variants) {
+      throw new NotFoundException('Không tìm thấy biến thể nào của sản phẩm này');
+    }
+
+    await this.variantRepository.deleteByProductId(productId); // xóa theo điều kiện
+    return { message: 'Xóa thành công tất cả biến thể' };
+  }
+
   async remove(id: number) {
     const variant = await this.variantRepository.findById(id);
     if (!variant) throw new NotFoundException('Biến thể không tồn tại');
