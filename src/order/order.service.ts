@@ -98,24 +98,25 @@ export class OrderService {
     }
     const finalAmount = total - discount - freeship + (shippingFee - freeship);
 
-    // Tạo order mới với payment info
+    // Tạo order mới
     const order = this.orderRepository.create({
-      price: finalAmount,
-      quantity: 1,
-      images: '',
-      comment: createPaymentDto.description || '',
-      payment_amount: finalAmount,
-      currency: createPaymentDto.currency || 'VND',
-      payment_description: createPaymentDto.description,
-      payment_method: createPaymentDto.payment_method,
-      payment_status: PaymentStatus.PENDING,
+      price: total,
       discount,
       freeship,
       shipping_fee: shippingFee,
-      voucher: voucherInfo,
+      quantity: (createPaymentDto as any).orderItems?.length || 1,
+      images: (createPaymentDto as any).orderItems?.[0]?.image || '',
+      comment: createPaymentDto.description || 'Thanh toan qua cổng thanh toán',
+      payment_amount: finalAmount,
+      payment_description: createPaymentDto.description,
+      payment_method: createPaymentDto.payment_method,
+      payment_status: PaymentStatus.PENDING,
+      currency: createPaymentDto.currency || 'VND',
     });
+
     const savedOrder = await this.orderRepository.save(order);
 
+    // Tạo thanh toán theo phương thức
     switch (createPaymentDto.payment_method) {
       case PaymentMethod.MOMO:
         return this.createMomoPayment(savedOrder);
@@ -130,60 +131,71 @@ export class OrderService {
 
   private async createMomoPayment(order: Order): Promise<PaymentResponseDto> {
     const momoConfig = {
-      partnerCode: process.env.MOMO_PARTNER_CODE,
-      accessKey: process.env.MOMO_ACCESS_KEY,
-      secretKey: process.env.MOMO_SECRET_KEY,
-      endpoint: 'https://test-payment.momo.vn/v2/gateway/api/create',
-      returnUrl: process.env.MOMO_RETURN_URL,
-      notifyUrl: process.env.MOMO_NOTIFY_URL,
+      partnerCode: process.env.MOMO_PARTNER_CODE || 'MOMO',
+      accessKey: process.env.MOMO_ACCESS_KEY || 'accessKey',
+      secretKey: process.env.MOMO_SECRET_KEY || 'secretKey',
+      endpoint: process.env.MOMO_ENDPOINT || 'https://test-payment.momo.vn/v2/gateway/api/create',
     };
 
-    const requestId = order.id.toString();
+    const requestId = `${order.id}-${Date.now()}`;
     const orderId = `${order.id}-${Date.now()}`;
-    const rawSignature = `accessKey=${momoConfig.accessKey}&amount=${order.payment_amount}&extraData=&ipnUrl=${momoConfig.notifyUrl}&orderId=${orderId}&orderInfo=${order.payment_description}&partnerCode=${momoConfig.partnerCode}&redirectUrl=${momoConfig.returnUrl}&requestId=${requestId}&requestType=captureWallet`;
+    const amount = order.payment_amount || 0;
+    const orderInfo = order.payment_description || 'Thanh toan don hang';
+    const redirectUrl = process.env.MOMO_REDIRECT_URL || 'http://localhost:3000/payment/return';
+    const ipnUrl = process.env.MOMO_IPN_URL || 'http://localhost:3000/payment/ipn';
+    const requestType = 'captureWallet';
+
+    const rawSignature = `accessKey=${momoConfig.accessKey}&amount=${amount}&extraData=&ipnUrl=${ipnUrl}&orderId=${orderId}&orderInfo=${orderInfo}&partnerCode=${momoConfig.partnerCode}&redirectUrl=${redirectUrl}&requestId=${requestId}&requestType=${requestType}`;
 
     const signature = crypto
-      .createHmac('sha256', momoConfig.secretKey || '')
+      .createHmac('sha256', momoConfig.secretKey)
       .update(rawSignature)
       .digest('hex');
 
-    const body = {
+    const requestBody = {
       partnerCode: momoConfig.partnerCode,
-      accessKey: momoConfig.accessKey,
-      requestId,
-      amount: order.payment_amount?.toString(),
-      orderId,
-      orderInfo: order.payment_description,
-      redirectUrl: momoConfig.returnUrl,
-      ipnUrl: momoConfig.notifyUrl,
-      requestType: 'captureWallet',
-      signature,
-      extraData: '',
-      lang: 'vi',
-    };
-
-    const response = await axios.post(momoConfig.endpoint, body);
-    const data = response.data as {
-      resultCode: number;
-      message: string;
-      payUrl: string;
-    };
-
-    await this.logRepo.save({
+      partnerName: 'Test',
+      storeId: 'MomoTestStore',
+      requestId: requestId,
+      amount: amount,
       orderId: orderId,
-      gatewayTransactionId: data.resultCode === 0 ? data.payUrl : '',
-      paymentMethod: 'momo',
-      rawData: data,
-      status: data.resultCode === 0 ? 'success' : 'fail',
-      reason: data.message,
-    });
-
-    return {
-      paymentUrl: data.payUrl,
-      paymentMethod: 'momo',
-      status: data.resultCode === 0 ? 'success' : 'fail',
-      message: data.message,
+      orderInfo: orderInfo,
+      redirectUrl: redirectUrl,
+      ipnUrl: ipnUrl,
+      lang: 'vi',
+      requestType: requestType,
+      autoCapture: true,
+      extraData: '',
+      signature: signature,
     };
+
+    try {
+      const response = await axios.post(momoConfig.endpoint, requestBody, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = response.data as any;
+
+      await this.logRepo.save({
+        orderId: orderId,
+        gatewayTransactionId: data.resultCode === 0 ? data.payUrl : '',
+        paymentMethod: 'momo',
+        rawData: data,
+        status: data.resultCode === 0 ? PaymentStatus.SUCCESS : PaymentStatus.FAIL,
+        reason: data.message,
+      });
+
+      return {
+        paymentUrl: data.payUrl,
+        paymentMethod: 'momo',
+        status: data.resultCode === 0 ? 'success' : 'fail',
+        message: data.message,
+      };
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to create MoMo payment');
+    }
   }
 
   private createVnpayPayment(order: Order): PaymentResponseDto {
@@ -237,7 +249,7 @@ export class OrderService {
       gatewayTransactionId: '',
       paymentMethod: 'vnpay',
       rawData: params,
-      status: 'pending',
+      status: PaymentStatus.PENDING,
     });
 
     return {
@@ -279,7 +291,7 @@ export class OrderService {
         transferContent,
         qrCode: qrCodeUrl,
       },
-      status: 'pending',
+      status: PaymentStatus.PENDING,
       reason: 'Waiting for bank transfer confirmation',
     });
 
@@ -334,7 +346,7 @@ export class OrderService {
         note: confirmDto.note,
         confirmedAt: new Date(),
       },
-      status: confirmDto.status === PaymentStatus.SUCCESS ? 'success' : 'fail',
+      status: confirmDto.status === PaymentStatus.SUCCESS ? PaymentStatus.SUCCESS : PaymentStatus.FAIL,
       reason: confirmDto.note || 'Bank transfer confirmed',
     });
 

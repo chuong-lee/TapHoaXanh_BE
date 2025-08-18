@@ -1,5 +1,6 @@
 // payment-log.entity.ts
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, Index } from 'typeorm';
+import { PaymentStatus } from '../enums/payment-status.enum';
 
 @Entity('payment_logs')
 export class PaymentLog {
@@ -20,8 +21,8 @@ export class PaymentLog {
   @Column({ type: 'json', nullable: true })
   rawData: any;
 
-  @Column({ type: 'varchar', length: 20 })
-  status: 'success' | 'fail' | 'pending';
+  @Column({ type: 'enum', enum: PaymentStatus })
+  status: PaymentStatus;
 
   @Column({ type: 'text', nullable: true })
   reason: string;
