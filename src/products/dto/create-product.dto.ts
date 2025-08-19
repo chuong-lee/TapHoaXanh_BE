@@ -1,21 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateProductDto {
-  @ApiProperty({ example: 'fish' })
+  @ApiProperty({ example: 'Áo thun nam' })
   name: string;
 
-  @ApiProperty({ example: 100000 })
+  @ApiProperty({ example: 150000 })
   price: number;
 
   @ApiProperty({ example: 50 })
   discount: number;
 
-  @ApiProperty({ example: 'linkImage' })
-  images: string;
-
+  @ApiProperty({ type: 'string', format: 'binary' })
+  images: string; // field upload file
   @ApiProperty({ example: 10 })
   slug: string;
-
   @ApiProperty({ example: 'mã code' })
   barcode: string;
 
@@ -28,7 +26,7 @@ export class CreateProductDto {
   @ApiProperty({ example: 10.05 })
   weight_unit: string;
 
-  @ApiProperty({ example: 'Mô tả' })
+  @ApiProperty({ example: 'Mô tả sản phẩm' })
   description: string;
 
   @ApiProperty({ example: 10 })

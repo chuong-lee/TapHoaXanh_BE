@@ -24,10 +24,9 @@ import { join } from 'path';
   imports: [
     ConfigModule.forRoot({ cache: true, isGlobal: true }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'uploads'), // vì __dirname đang ở trong dist
+      rootPath: join(process.cwd(), 'uploads'), // trỏ ra ngoài dist
       serveRoot: '/uploads',
     }),
-
     AuthModule,
     ProductsModule,
     CategoriesModule,
