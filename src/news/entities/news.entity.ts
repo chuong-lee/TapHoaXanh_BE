@@ -4,11 +4,11 @@ import { Column, Entity } from 'typeorm';
 @Entity('news')
 export class News extends AbstractEntity<News> {
   @Column()
-  name: string;
+  name?: string;
 
   @Column()
-  images: string;
+  images?: string;
 
   @Column()
-  description: string;
+  description?: string;
 }

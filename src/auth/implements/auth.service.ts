@@ -67,7 +67,7 @@ export class AuthService implements IAuthService {
     if (!user) throw new NotFoundException('Người dùng không tồn tại');
     const { access_token, refresh_token } = await this.generateToken(user); //tạo access_token và refresh_token mới
     await this._authRepository.createToken(new Token(access_token, refresh_token, user)); //lưu token mới vào cơ sở dữ liệu
-
+    //create at delete old token
     return { access_token, refresh_token };
   }
 

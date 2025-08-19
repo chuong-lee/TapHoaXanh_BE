@@ -30,6 +30,12 @@ export class ProductImagesRepository extends BaseRepository<ProductImage> {
     });
   }
 
+  async findAllByProductId(id: number): Promise<ProductImage[]> {
+    return this.productImagesRepository.find({
+      where: { product: { id } },
+    });
+  }
+
   async deleteByProductId(id: number) {
     return await this.productImagesRepository.delete({ product: { id } });
   }

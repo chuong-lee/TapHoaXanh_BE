@@ -18,11 +18,8 @@ import { AuthModule } from './auth/auth.module';
 import { JwtGuard } from './auth/guards/jwt.guard';
 import { CartModule } from './cart/cart.module';
 import { CartItemModule } from './cart_item/cart_item.module';
-import { CategoryChildModule } from './category-child/category-child.module';
-import { DeliveryModule } from './delivery/delivery.module';
 import { NewsModule } from './news/news.module';
 import { OrderItemModule } from './order_item/order_item.module';
-import { PaymentModule } from './payment/payment.module';
 import { RatingModule } from './rating/rating.module';
 import { WishlistModule } from './wishlist/wishlist.module';
 
@@ -44,15 +41,12 @@ import { WishlistModule } from './wishlist/wishlist.module';
     AddressModule,
     VoucherModule,
     OrderModule,
-    PaymentModule,
-    DeliveryModule,
     OrderItemModule,
     RatingModule,
     WishlistModule,
     CartModule,
     CartItemModule,
     NewsModule,
-    CategoryChildModule,
   ],
   controllers: [],
   providers: [

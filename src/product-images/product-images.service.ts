@@ -106,9 +106,9 @@ export class ProductImagesService {
   }
 
   async removeProductImagesByProductId(id: number) {
-    const productImage = await this.productImagesRepository.findOneByProductId(id);
+    const productImage = await this.productImagesRepository.findAllByProductId(id);
     if (!productImage) throw new NotFoundException('Không tìm thấy hình ảnh của sản phẩm này');
-    deleteFileIfExists(productImage.image_url);
+    productImage.map((item) => deleteFileIfExists(item.image_url));
 
     await this.productImagesRepository.deleteByProductId(id);
 
