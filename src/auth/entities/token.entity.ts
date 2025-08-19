@@ -19,6 +19,6 @@ export class Token extends AbstractEntity<Token> {
   @Column({ type: 'enum', enum: loginType, default: loginType.EMAIL })
   logintype?: loginType;
   @OneToOne(() => Users, (user) => user.token)
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn({ name: 'user_id' })
   user!: Users;
 }

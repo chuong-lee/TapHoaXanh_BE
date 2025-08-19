@@ -100,6 +100,10 @@ export class ProductImagesService {
     if (!productImage) throw new NotFoundException('Hình ảnh sản phẩm không tồn tại');
 
     // Lấy đường dẫn tương đối bỏ dấu "/" ở đầu
+    if (!productImage.image_url) {
+      throw new InternalServerErrorException('Đường dẫn ảnh không hợp lệ');
+    }
+
     const relativePath = productImage.image_url.startsWith('/')
       ? productImage.image_url.slice(1)
       : productImage.image_url;

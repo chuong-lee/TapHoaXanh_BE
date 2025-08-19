@@ -24,11 +24,11 @@ export class JwtGuard implements CanActivate {
       //Check if the token exists in the database
       const tokenExists = await this.authService.verifyToken(access_Token, payload.sub);
       if (!tokenExists) {
-        throw new UnauthorizedException('Invalid token');
+        throw new UnauthorizedException('token không hợp lệ');
       }
       request['user'] = payload;
     } catch {
-      throw new UnauthorizedException('lỗi user');
+      throw new UnauthorizedException('lỗi user không hợp lệ');
     }
     return true;
   }

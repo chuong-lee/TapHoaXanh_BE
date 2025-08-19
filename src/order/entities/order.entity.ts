@@ -1,42 +1,36 @@
 import { AbstractEntity } from 'src/database/database.entity';
-import { Delivery } from 'src/delivery/entities/delivery.entity';
 import { OrderItem } from 'src/order_item/entities/order_item.entity';
-import { Payment } from 'src/payment/entities/payment.entity';
-import { Rating } from 'src/rating/entities/rating.entity';
 import { Users } from 'src/users/entities/users.entity';
 import { Voucher } from 'src/voucher/entities/voucher.entity';
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 
 @Entity('order')
 export class Order extends AbstractEntity<Order> {
   @Column()
-  price: number;
+  total_price!: number;
 
   @Column()
-  quantity: number;
+  note?: number;
 
   @Column()
-  images: string;
+  order_code!: string;
 
   @Column()
-  comment: string;
+  status!: string;
+
+  @Column()
+  comment?: string;
+
+  @Column()
+  payment_method!: string;
 
   @ManyToOne(() => Users, (users) => users.order)
-  users: Users;
+  @JoinColumn({ name: 'user_id' })
+  users!: Users;
 
   @OneToMany(() => Voucher, (voucher) => voucher.order)
-  voucher: Voucher[];
-
-  @OneToOne(() => Payment, (payment) => payment.order)
-  @JoinColumn()
-  payment: Payment;
-
-  @OneToMany(() => Delivery, (delivery) => delivery.order)
-  delivery: Delivery[];
+  voucher?: Voucher[];
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
-  orderItem: OrderItem[];
-
-  @OneToMany(() => Rating, (rating) => rating.order)
-  rating: Rating[];
+  orderItem!: OrderItem[];
 }

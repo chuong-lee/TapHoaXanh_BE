@@ -7,74 +7,69 @@ import { ProductImage } from 'src/product-images/entities/product-image.entity';
 import { ProductVariant } from 'src/product-variant/entities/product-variant.entity';
 import { Rating } from 'src/rating/entities/rating.entity';
 import { Wishlist } from 'src/wishlist/entities/wishlist.entity';
-import { CategoryChild } from '../../category-child/entities/category-child.entity';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
-
-import { JoinColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 
 @Entity('product')
 export class Product extends AbstractEntity<Product> {
   @Column()
-  name: string;
+  name!: string;
 
   @Column()
-  price: number;
+  price!: number;
 
   @Column()
-  discount: number;
+  discount!: number;
 
   @Column()
-  images: string;
+  images!: string;
 
   @Column()
-  slug: string;
+  slug!: string;
 
   @Column({ unique: true })
-  barcode: string;
+  barcode!: string;
 
   @Column()
-  expiry_date: Date;
+  expiry_date!: Date;
 
   @Column()
-  origin: string;
+  origin!: string;
 
   @Column()
-  weight_unit: string;
+  weight_unit!: string;
 
   @Column({ nullable: true })
-  description: string;
+  description?: string;
 
   @Column()
-  quantity: number;
+  quantity!: number;
 
   @Column({ default: 0 })
-  purchase: number;
+  purchase!: number;
 
   @ManyToOne(() => Category, (category) => category.product)
-  category: Category;
+  @JoinColumn({ name: 'category_id' })
+  category!: Category;
 
   @OneToMany(() => ProductVariant, (variant) => variant.product)
-  variants: ProductVariant[];
+  variants!: ProductVariant[];
 
   @OneToMany(() => ProductImage, (image) => image.product)
-  image: ProductImage;
+  image!: ProductImage;
 
   @ManyToOne(() => Brand, (brand) => brand.product)
-  brand: Brand;
+  @JoinColumn({ name: 'brand_id' })
+  brand!: Brand;
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
-  orderItem: OrderItem[];
+  orderItem!: OrderItem[];
 
   @OneToMany(() => Rating, (rating) => rating.product)
-  rating: Rating[];
+  rating!: Rating[];
 
   @OneToMany(() => Wishlist, (wishlist) => wishlist.product)
-  wishlist: Wishlist[];
+  wishlist!: Wishlist[];
 
   @OneToMany(() => CartItem, (item) => item.cart)
-  cartItems: CartItem[];
-
-  @ManyToOne(() => CategoryChild, (child) => child.products, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'category_childId' })
-  category_child: CategoryChild;
+  cartItems!: CartItem[];
 }
