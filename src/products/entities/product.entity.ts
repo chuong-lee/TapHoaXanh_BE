@@ -1,12 +1,12 @@
-import { Brand } from 'src/brand/entities/brand.entity';
-import { CartItem } from 'src/cart_item/entities/cart_item.entity';
-import { Category } from 'src/category/entities/category.entity';
-import { AbstractEntity } from 'src/database/database.entity';
-import { OrderItem } from 'src/order_item/entities/order_item.entity';
-import { ProductImage } from 'src/product-images/entities/product-image.entity';
-import { ProductVariant } from 'src/product-variant/entities/product-variant.entity';
-import { Rating } from 'src/rating/entities/rating.entity';
-import { Wishlist } from 'src/wishlist/entities/wishlist.entity';
+import { Brand } from '../../brand/entities/brand.entity';
+import { CartItem } from '../../cart_item/entities/cart_item.entity';
+import { Category } from '../../category/entities/category.entity';
+import { AbstractEntity } from '../../database/database.entity';
+import { OrderItem } from '../../order_item/entities/order_item.entity';
+import { ProductImage } from '../../product-images/entities/product-image.entity';
+import { ProductVariant } from '../../product-variant/entities/product-variant.entity';
+import { Rating } from '../../rating/entities/rating.entity';
+import { Wishlist } from '../../wishlist/entities/wishlist.entity';
 import { Column, Entity, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 
 @Entity('product')

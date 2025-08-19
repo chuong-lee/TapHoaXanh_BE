@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Cart } from '../entities/cart.entity';
 import { ICartService } from '../interfaces/icart-service.interface';
 import { ICartRepository } from '../interfaces/icart-repository.interface';
-import { ICartItemService } from 'src/cart_item/interfaces/icart_item-service.interface';
+import { ICartItemService } from '../../cart_item/interfaces/icart_item-service.interface';
 
 @Injectable()
 export class CartService implements ICartService {

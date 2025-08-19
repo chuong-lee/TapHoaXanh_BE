@@ -1,6 +1,6 @@
-import { AbstractEntity } from 'src/database/database.entity';
-import { Order } from 'src/order/entities/order.entity';
-import { Users } from 'src/users/entities/users.entity';
+import { AbstractEntity } from '../../database/database.entity';
+import { Order } from '../../order/entities/order.entity';
+import { Users } from '../../users/entities/users.entity';
 import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
 
 @Entity('voucher')

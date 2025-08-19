@@ -4,7 +4,7 @@ import { Users } from '../entities/users.entity';
 import { IUsersRepository } from '../interfaces/iusers-repository.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FilterUserDto } from '../dto/filter-user.dto';
-import { PaginationResult } from 'src/interface/IPagination';
+import { PaginationResult } from '../../interface/IPagination';
 
 @Injectable()
 export class UsersRepository implements IUsersRepository {

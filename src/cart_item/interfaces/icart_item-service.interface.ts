@@ -1,4 +1,4 @@
-import { Cart } from 'src/cart/entities/cart.entity';
+import { Cart } from '../../cart/entities/cart.entity';
 import { CartItem } from '../entities/cart_item.entity';
 
 export abstract class ICartItemService {

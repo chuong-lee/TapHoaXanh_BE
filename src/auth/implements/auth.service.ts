@@ -1,13 +1,13 @@
 import { Injectable, UnauthorizedException, NotFoundException, Inject, BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { RegisterAuthDto } from 'src/auth/dto/register.dto';
-import { IUsersRepository } from 'src/users/interfaces/iusers-repository.interface';
+import { RegisterAuthDto } from '../dto/register.dto';
+import { IUsersRepository } from '../../users/interfaces/iusers-repository.interface';
 import * as nodemailer from 'nodemailer';
-import { IAuthService } from 'src/auth/interfaces/iauth-service.interface';
+import { IAuthService } from '../interfaces/iauth-service.interface';
 import { JwtService } from '@nestjs/jwt';
 import { IAuthRepository } from '../interfaces/iauth-repository.interface';
 import { Token } from '../entities/token.entity';
-import { Users } from 'src/users/entities/users.entity';
+import { Users } from '../../users/entities/users.entity';
 @Injectable()
 export class AuthService implements IAuthService {
   constructor(

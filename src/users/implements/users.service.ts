@@ -8,7 +8,7 @@ import { UpdatePasswordDto } from '../dto/updatePassword-user.dto';
 import { plainToInstance } from 'class-transformer';
 import { ProfileDto } from '../dto/profile-user.dto';
 import { FilterUserDto } from '../dto/filter-user.dto';
-import { PaginationResult } from 'src/interface/IPagination';
+import { PaginationResult } from '../../interface/IPagination';
 
 @Injectable()
 export class UsersService implements IUsersService {

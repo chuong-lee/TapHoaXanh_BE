@@ -3,7 +3,7 @@ import { UpdateUserDto } from '../dto/update-user.dto';
 import { UpdatePasswordDto } from '../dto/updatePassword-user.dto';
 import { ProfileDto } from '../dto/profile-user.dto';
 import { FilterUserDto } from '../dto/filter-user.dto';
-import { PaginationResult } from 'src/interface/IPagination';
+import { PaginationResult } from '../../interface/IPagination';
 
 export abstract class IUsersService {
   abstract findByEmail(email: string): Promise<Users | null>;

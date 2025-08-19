@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { BaseRepository } from 'src/database/abstract.repository';
+import { BaseRepository } from '../database/abstract.repository';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { ProductFilterDto } from './dto/Filter-product.dto';
 import { Product } from './entities/product.entity';
