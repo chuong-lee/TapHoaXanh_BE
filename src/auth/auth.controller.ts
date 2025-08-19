@@ -18,6 +18,7 @@ export class AuthController {
   @ApiOperation({
     summary: 'Đăng nhập',
   })
+  // @UseGuards(IsAdminGuard)
   @Post('login')
   async login(@Body() dto: LoginAuthDto) {
     return this.authService.login(dto.email, dto.password);

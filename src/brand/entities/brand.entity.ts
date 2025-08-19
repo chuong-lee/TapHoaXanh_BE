@@ -5,13 +5,8 @@ import { Column, Entity, OneToMany } from 'typeorm';
 @Entity('brand')
 export class Brand extends AbstractEntity<Brand> {
   @Column()
-  name: string;
-  @Column()
-  address: string;
-
-  @Column()
-  phone: string;
+  name!: string;
 
   @OneToMany(() => Product, (product) => product.brand)
-  product: Product[];
+  product!: Product[];
 }

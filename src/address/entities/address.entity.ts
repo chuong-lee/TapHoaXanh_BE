@@ -1,6 +1,6 @@
 import { AbstractEntity } from 'src/database/database.entity';
 import { Users } from 'src/users/entities/users.entity';
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 @Entity('address')
 export class Address extends AbstractEntity<Address> {
@@ -17,5 +17,6 @@ export class Address extends AbstractEntity<Address> {
   is_default?: boolean;
 
   @ManyToOne(() => Users, (users) => users.address)
-  users?: Users;
+  @JoinColumn({ name: 'user_id' })
+  users!: Users;
 }
