@@ -4,11 +4,11 @@ import { IsOptional } from 'class-validator';
 export class FilterUserDto {
   @IsOptional()
   @ApiProperty({ required: false })
-  search: string;
+  search!: string;
 
   @IsOptional()
   @ApiProperty({ required: false })
-  role: string;
+  role!: string;
 
   @IsOptional()
   @ApiProperty({ required: false })
