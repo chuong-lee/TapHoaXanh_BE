@@ -16,7 +16,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductFilterDto } from './dto/Filter-product.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
-import { Public } from 'public.decorator';
+import { Public } from '../../public.decorator';
 
 @Controller('products')
 export class ProductsController {

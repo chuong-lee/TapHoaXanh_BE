@@ -5,7 +5,7 @@ import { ForgotPasswordAuthDto } from './dto/forgot-password.dto';
 import { IAuthService } from './interfaces/iauth-service.interface';
 import { ApiBody, ApiOperation } from '@nestjs/swagger';
 import { JwtGuard } from './guards/jwt.guard';
-import { Public } from 'public.decorator';
+import { Public } from '../../public.decorator';
 
 @Controller('auth')
 export class AuthController {
