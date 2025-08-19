@@ -7,6 +7,8 @@ import { UpdateUserDto } from '../dto/update-user.dto';
 import { UpdatePasswordDto } from '../dto/updatePassword-user.dto';
 import { plainToInstance } from 'class-transformer';
 import { ProfileDto } from '../dto/profile-user.dto';
+import { FilterUserDto } from '../dto/filter-user.dto';
+import { PaginationResult } from 'src/interface/IPagination';
 
 @Injectable()
 export class UsersService implements IUsersService {
@@ -60,5 +62,9 @@ export class UsersService implements IUsersService {
     const user = await this._usersRepository.findById(id);
     if (!user) throw new NotFoundException('Người dùng không tồn tại');
     return plainToInstance(ProfileDto, user);
+  }
+
+  async filterAllUser(userDto: FilterUserDto): Promise<PaginationResult<Users>> {
+    return await this._usersRepository.filterUser(userDto);
   }
 }

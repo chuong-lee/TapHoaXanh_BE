@@ -21,11 +21,8 @@ export class ProductsService {
   async handleSingleFileUpload(file: Express.Multer.File, folderName: string) {
     try {
       const uploadDir = join(process.cwd(), 'uploads', folderName);
-      console.log('📂 Saving file to:', uploadDir);
-
       if (!fs.existsSync(uploadDir)) {
         fs.mkdirSync(uploadDir, { recursive: true });
-        console.log('✅ Folder created');
       }
 
       const filename = Date.now() + '-' + file.originalname;

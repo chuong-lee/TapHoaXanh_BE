@@ -16,6 +16,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductFilterDto } from './dto/Filter-product.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { Public } from 'public.decorator';
 
 @Controller('products')
 export class ProductsController {
@@ -29,21 +30,25 @@ export class ProductsController {
     return this.productsService.create(createProductDto, file);
   }
 
+  @Public()
   @Get()
   findAll() {
     return this.productsService.findAll();
   }
 
+  @Public()
   @Get('search')
   async Search(@Query() query: ProductFilterDto) {
     return this.productsService.filterProducts(query);
   }
 
+  @Public()
   @Get(':id')
   findOne(@Param('id') id: number) {
     return this.productsService.productDetail(id);
   }
 
+  @Public()
   @Get('cate/:id')
   findByCategory(@Param('id') id: number) {
     return this.productsService.findByCategory(id);
@@ -69,6 +74,8 @@ export class ProductsController {
   removeByCategoryId(@Param('id') id: number) {
     return this.productsService.removeByCategoryId(+id);
   }
+
+  @Public()
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.productsService.remove(+id);

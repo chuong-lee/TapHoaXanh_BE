@@ -47,8 +47,6 @@ export class ProductVariantService {
 
   async removeProductVariantByProductId(productId: number) {
     const variants = await this.variantRepository.findOneByProductId(productId);
-    console.log('🚀 ~ ProductVariantService ~ removeProductVariantByProductId ~ variants:', variants);
-
     if (!variants) {
       throw new NotFoundException('Không tìm thấy biến thể nào của sản phẩm này');
     }
