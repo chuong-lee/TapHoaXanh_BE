@@ -1,6 +1,6 @@
-import { AbstractEntity } from 'src/database/database.entity';
-import { OrderItem } from 'src/order_item/entities/order_item.entity';
-import { Product } from 'src/products/entities/product.entity';
+import { AbstractEntity } from '../../database/database.entity';
+import { OrderItem } from '../../order_item/entities/order_item.entity';
+import { Product } from '../../products/entities/product.entity';
 import { Column, Entity, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 
 @Entity('product_variant')

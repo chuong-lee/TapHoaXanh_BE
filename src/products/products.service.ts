@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { BrandRepository } from 'src/brand/brand.repsitory';
-import { CategoryRepository } from 'src/category/categories.reposirory';
+import { BrandRepository } from '../brand/brand.repsitory';
+import { CategoryRepository } from '../category/categories.reposirory';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductRepository } from './products.repository';
@@ -8,7 +8,7 @@ import { ProductFilterDto } from './dto/Filter-product.dto';
 import * as fs from 'fs';
 import * as util from 'util';
 import { join } from 'path';
-import { deleteFileIfExists } from 'src/utils/deleteImages';
+import { deleteFileIfExists } from '../utils/deleteImages';
 const writeFile = util.promisify(fs.writeFile);
 @Injectable()
 export class ProductsService {

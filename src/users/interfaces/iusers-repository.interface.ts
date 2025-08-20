@@ -1,4 +1,4 @@
-import { PaginationResult } from 'src/interface/IPagination';
+import { PaginationResult } from '../../interface/IPagination';
 import { FilterUserDto } from '../dto/filter-user.dto';
 import { Users } from '../entities/users.entity';
 

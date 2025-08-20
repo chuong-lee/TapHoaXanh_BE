@@ -1,7 +1,5 @@
-import { AbstractEntity } from 'src/database/database.entity';
-import { Users } from 'src/users/entities/users.entity';
-import { Category } from 'src/category/entities/category.entity';
-import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
+import { AbstractEntity } from '../../database/database.entity';
+import { Column, Entity } from 'typeorm';
 
 @Entity('news')
 export class News extends AbstractEntity<News> {

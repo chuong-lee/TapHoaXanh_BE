@@ -1,8 +1,8 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import * as fs from 'fs';
 import { join } from 'path';
-import { ProductRepository } from 'src/products/products.repository';
-import { deleteFileIfExists } from 'src/utils/deleteImages';
+import { ProductRepository } from '../products/products.repository';
+import { deleteFileIfExists } from '../utils/deleteImages';
 import * as util from 'util';
 import { CreateProductImageDto } from './dto/create-product-image.dto';
 import { UpdateProductImageDto } from './dto/update-product-image.dto';

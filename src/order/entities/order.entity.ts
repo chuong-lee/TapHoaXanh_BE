@@ -1,9 +1,9 @@
-import { AbstractEntity } from 'src/database/database.entity';
-import { Users } from 'src/users/entities/users.entity';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
-import { PaymentMethod } from '../enums/payment-method.enum';
-import { Voucher } from 'src/voucher/entities/voucher.entity';
-import { OrderItem } from 'src/order_item/entities/order_item.entity';
+
+import { AbstractEntity } from '../../database/database.entity';
+import { OrderItem } from '../../order_item/entities/order_item.entity';
+import { Users } from '../../users/entities/users.entity';
+import { Voucher } from '../../voucher/entities/voucher.entity';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 
 @Entity('order')
 export class Order extends AbstractEntity<Order> {

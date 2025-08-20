@@ -1,13 +1,13 @@
-import { Address } from 'src/address/entities/address.entity';
-import { Token } from 'src/auth/entities/token.entity';
-import { Cart } from 'src/cart/entities/cart.entity';
-import { AbstractEntity } from 'src/database/database.entity';
-import { Order } from 'src/order/entities/order.entity';
-import { Rating } from 'src/rating/entities/rating.entity';
-import { Voucher } from 'src/voucher/entities/voucher.entity';
-import { Wishlist } from 'src/wishlist/entities/wishlist.entity';
+import { Address } from '../../address/entities/address.entity';
+import { Token } from '../../auth/entities/token.entity';
+import { Cart } from '../../cart/entities/cart.entity';
+import { AbstractEntity } from '../../database/database.entity';
+import { Order } from '../../order/entities/order.entity';
+import { Rating } from '../../rating/entities/rating.entity';
+import { Voucher } from '../../voucher/entities/voucher.entity';
+import { Wishlist } from '../../wishlist/entities/wishlist.entity';
 import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
-import { TUserRole } from 'src/types/common.enum';
+import { TUserRole } from '../../types/common.enum';
 @Entity('users')
 export class Users extends AbstractEntity<Users> {
   @Column('varchar', { length: 255 })
