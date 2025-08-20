@@ -5,16 +5,23 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
-      useFactory: () => ({
-        type: 'mysql',
-        url: process.env.DATABASE_URL, // từ Vercel env
-        autoLoadEntities: true,
-        synchronize: true, // chỉ bật ở dev
-        ssl: {
-          rejectUnauthorized: false, // Aiven yêu cầu SSL
-        },
-      }),
       inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        const isProd = process.env.NODE_ENV === 'production';
+        console.log('🚀 Database running in:', isProd ? 'PRODUCTION' : 'LOCAL');
+        return {
+          type: 'mysql',
+          host: isProd ? undefined : config.getOrThrow('MYSQL_HOST'),
+          port: isProd ? undefined : config.getOrThrow('MYSQL_PORT'),
+          username: isProd ? undefined : config.getOrThrow('MYSQL_USERNAME'),
+          password: isProd ? undefined : config.getOrThrow('MYSQL_PASSWORD'),
+          database: isProd ? undefined : config.getOrThrow('MYSQL_DATABASE'),
+          url: isProd ? process.env.DATABASE_URL : undefined, // dùng URL khi prod
+          autoLoadEntities: true,
+          synchronize: !isProd, // chỉ bật sync ở local
+          ssl: isProd ? { rejectUnauthorized: false } : undefined,
+        };
+      },
     }),
   ],
 })

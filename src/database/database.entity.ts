@@ -1,6 +1,6 @@
 import { BaseEntity, CreateDateColumn, DeleteDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
-export abstract class AbstractEntity<T> extends BaseEntity {
+export abstract class AbstractEntity<_T> extends BaseEntity {
   @PrimaryGeneratedColumn() // id tự đông tăng
   id!: number;
 
