@@ -1,10 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { IUsersRepository } from 'src/users/interfaces/iusers-repository.interface';
 import { Repository } from 'typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { Order } from './entities/order.entity';
 import { PaymentStatus } from './enums/payment-status.enum';
+import { FilterOrderDto } from './dto/filter-order.dto';
 
 @Injectable()
 export class OrderService {
@@ -12,8 +14,8 @@ export class OrderService {
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
 
-    // @InjectRepository(PaymentLog)
-    // private logRepo: Repository<PaymentLog>,
+    @Inject(IUsersRepository) // 👈 inject đúng token
+    private readonly userRepository: IUsersRepository,
   ) {}
 
   // Order CRUD operations
@@ -22,6 +24,9 @@ export class OrderService {
       ...createOrderDto,
       status: createOrderDto.status || PaymentStatus.PENDING,
     });
+    const findUser = await this.userRepository.findById(createOrderDto.userId);
+    if (!findUser) throw new NotFoundException('User này không tồn tại');
+    order.user = findUser;
     return this.orderRepository.save(order);
   }
 
@@ -29,6 +34,39 @@ export class OrderService {
     return this.orderRepository.find({
       relations: ['users', 'voucher', 'orderItem'],
     });
+  }
+
+  async filterAllOrder(query: FilterOrderDto) {
+    const { search, status, page = 1, limit = 10 } = query;
+    const qb = this.orderRepository.createQueryBuilder('order');
+
+    if (search) {
+      qb.andWhere('(LOWER(order.order_code) LIKE LOWER(:search)) or (LOWER(order.order_code) LIKE LOWER(:search))', {
+        search: `%${search}%`,
+      });
+    }
+
+    if (status) {
+      qb.andWhere('(LOWER(user.role) LIKE LOWER(:role))', {
+        role: `%${status}%`,
+      });
+    }
+
+    qb.orderBy('pv.id', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit);
+
+    const [items, total] = await qb.getManyAndCount();
+
+    return {
+      data: items,
+      meta: {
+        total,
+        page,
+        limit,
+        lastPage: Math.ceil(total / limit),
+      },
+    };
   }
 
   async findOne(id: number): Promise<Order> {
