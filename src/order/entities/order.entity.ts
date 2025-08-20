@@ -19,9 +19,6 @@ export class Order extends AbstractEntity<Order> {
   @Column()
   status!: string;
 
-  @Column()
-  comment?: string;
-
   @Column({ type: 'enum', enum: PaymentMethod })
   payment?: PaymentMethod;
 

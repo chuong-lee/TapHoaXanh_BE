@@ -23,11 +23,6 @@ export class CreateOrderDto {
   @IsNotEmpty()
   status?: string;
 
-  @ApiPropertyOptional({ example: 'Khách yêu cầu đóng gói kỹ', description: 'Bình luận từ khách hàng' })
-  @IsString()
-  @IsOptional()
-  comment?: string;
-
   @ApiPropertyOptional({ enum: PaymentMethod, example: PaymentMethod.MOMO, description: 'Phương thức thanh toán' })
   @IsEnum(PaymentMethod)
   @IsOptional()
@@ -36,5 +31,5 @@ export class CreateOrderDto {
   @ApiProperty({ example: 1, description: 'ID của user đặt hàng' })
   @IsNumber()
   @IsNotEmpty()
-  user_id!: number;
+  userId!: number;
 }
