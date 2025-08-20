@@ -5,12 +5,9 @@ import { SePayService } from './sepay.service';
 import { VNPayService } from './vnpay.service';
 import { OrderController } from './order.controller';
 import { Order } from './entities/order.entity';
-import { PaymentLog } from './entities/payment-log.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Order, PaymentLog]),
-  ],
+  imports: [TypeOrmModule.forFeature([Order])],
   controllers: [OrderController],
   providers: [OrderService, SePayService, VNPayService],
   exports: [OrderService, SePayService, VNPayService],

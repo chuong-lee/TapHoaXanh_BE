@@ -1,11 +1,12 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { ProductRepository } from 'src/products/products.repository';
-import { CreateProductImageDto } from './dto/create-product-image.dto';
-import { ProductImagesRepository } from './prduct-images.repository';
-import { UpdateProductImageDto } from './dto/update-product-image.dto';
 import * as fs from 'fs';
+import { join } from 'path';
+import { ProductRepository } from 'src/products/products.repository';
+import { deleteFileIfExists } from 'src/utils/deleteImages';
 import * as util from 'util';
-import { dirname, join } from 'path';
+import { CreateProductImageDto } from './dto/create-product-image.dto';
+import { UpdateProductImageDto } from './dto/update-product-image.dto';
+import { ProductImagesRepository } from './prduct-images.repository';
 
 const writeFile = util.promisify(fs.writeFile);
 
@@ -16,14 +17,11 @@ export class ProductImagesService {
     private readonly productRepository: ProductRepository,
   ) {}
 
-  async handleFileUpload(files: Express.Multer.File[], folderName: string) {
+  async handleFilesUpload(files: Express.Multer.File[], folderName: string) {
     try {
-      const uploadDir = join(__dirname, '..', '..', 'uploads', folderName);
-      console.log('📂 Saving files to:', uploadDir);
-
+      const uploadDir = join(process.cwd(), 'uploads', folderName);
       if (!fs.existsSync(uploadDir)) {
         fs.mkdirSync(uploadDir, { recursive: true });
-        console.log('✅ Folder created');
       }
 
       const savedFiles = [];
@@ -53,7 +51,8 @@ export class ProductImagesService {
     const product = await this.productRepository.findById(createProductImageDto.productId);
     if (!product) throw new NotFoundException('Sản phẩm không tồn tại');
 
-    const uploadResult = await this.handleFileUpload(images, product.id.toString());
+    // Gọi upload file
+    const uploadResult = await this.handleFilesUpload(images, product.id.toString());
 
     if (!uploadResult.files || !Array.isArray(uploadResult.files)) {
       throw new InternalServerErrorException('Upload ảnh thất bại');
@@ -96,33 +95,21 @@ export class ProductImagesService {
   async remove(id: number) {
     const productImage = await this.productImagesRepository.findById(id);
     if (!productImage) throw new NotFoundException('Hình ảnh sản phẩm không tồn tại');
-
-    const relativePath = productImage.image_url.startsWith('/')
-      ? productImage.image_url.slice(1)
-      : productImage.image_url;
-
-    const filePath = join(__dirname, '..', '..', relativePath);
-
-    try {
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-        console.log(`Đã xóa file: ${filePath}`);
-
-        const folderPath = dirname(filePath);
-
-        if (folderPath.endsWith('uploads')) return;
-
-        const files = fs.readdirSync(folderPath);
-        if (files.length === 0) {
-          fs.rmdirSync(folderPath);
-          console.log(`Đã xóa folder rỗng: ${folderPath}`);
-        }
-      }
-    } catch (err) {
-      console.error(`Không thể xoá file hoặc folder:`, err);
-    }
+    deleteFileIfExists(productImage.image_url);
 
     await this.productImagesRepository.delete(id);
+
+    return {
+      message: `Xoá hình ảnh sản phẩm thành công`,
+    };
+  }
+
+  async removeProductImagesByProductId(id: number) {
+    const productImage = await this.productImagesRepository.findAllByProductId(id);
+    if (!productImage) throw new NotFoundException('Không tìm thấy hình ảnh của sản phẩm này');
+    productImage.map((item) => deleteFileIfExists(item.image_url));
+
+    await this.productImagesRepository.deleteByProductId(id);
 
     return {
       message: `Xoá hình ảnh sản phẩm thành công`,

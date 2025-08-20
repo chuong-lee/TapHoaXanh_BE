@@ -6,7 +6,7 @@ import { Order } from 'src/order/entities/order.entity';
 import { Rating } from 'src/rating/entities/rating.entity';
 import { Voucher } from 'src/voucher/entities/voucher.entity';
 import { Wishlist } from 'src/wishlist/entities/wishlist.entity';
-import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { TUserRole } from 'src/types/common.enum';
 @Entity('users')
 export class Users extends AbstractEntity<Users> {
@@ -34,7 +34,6 @@ export class Users extends AbstractEntity<Users> {
   voucher?: Voucher[];
   @OneToMany(() => Order, (order) => order.users)
   order?: Order[];
-
   @OneToMany(() => Rating, (rating) => rating.users)
   rating?: Rating[];
   @OneToMany(() => Wishlist, (wishlist) => wishlist.users)
@@ -42,5 +41,6 @@ export class Users extends AbstractEntity<Users> {
   @OneToMany(() => Cart, (cart) => cart.user)
   cart?: Cart[];
   @OneToOne(() => Token, (token) => token.user, { nullable: true })
+  @JoinColumn({ name: 'token_id' })
   token?: Token;
 }

@@ -2,29 +2,27 @@ import { AbstractEntity } from 'src/database/database.entity';
 import { OrderItem } from 'src/order_item/entities/order_item.entity';
 import { Users } from 'src/users/entities/users.entity';
 import { Voucher } from 'src/voucher/entities/voucher.entity';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+
 @Entity('order')
 export class Order extends AbstractEntity<Order> {
-
-  @Column({ type: 'float', nullable: true })
-  price: number;
-  @Column({ type: 'float', nullable: true })
-  discount?: number;
-
-  @Column({ type: 'float', nullable: true })
-  freeship?: number;
-
-  @Column({ type: 'float', nullable: true })
-  shipping_fee?: number;
+  @Column()
+  total_price!: number;
 
   @Column()
-  quantity: number;
+  note?: number;
 
   @Column()
-  images: string;
+  order_code!: string;
 
   @Column()
-  comment: string;
+  status!: string;
+
+  @Column()
+  comment?: string;
+
+  @Column()
+  payment_method!: string;
 
   // Payment fields
   @Column({ type: 'float', nullable: true })
@@ -32,9 +30,6 @@ export class Order extends AbstractEntity<Order> {
 
   @Column({ nullable: true })
   payment_description?: string;
-
-  @Column({ nullable: true })
-  payment_method?: string;
 
   @Column({ nullable: true })
   payment_status?: string;
@@ -49,11 +44,12 @@ export class Order extends AbstractEntity<Order> {
   currency?: string;
 
   @ManyToOne(() => Users, (users) => users.order)
-  users: Users;
+  @JoinColumn({ name: 'user_id' })
+  users!: Users;
 
-  @ManyToOne(() => Voucher, (voucher) => voucher.order, { nullable: true })
-  voucher: Voucher;
+  @OneToMany(() => Voucher, (voucher) => voucher.order)
+  voucher?: Voucher[];
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
-  orderItem: OrderItem[];
+  orderItem!: OrderItem[];
 }

@@ -2,44 +2,44 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateProductDto {
   @ApiProperty({ example: 'fish' })
-  name: string;
+  name!: string;
 
   @ApiProperty({ example: 100000 })
-  price: number;
+  price!: number;
 
   @ApiProperty({ example: 50 })
-  discount: number;
+  discount!: number;
 
   @ApiProperty({ example: 'linkImage' })
-  images: string;
+  images!: string;
 
   @ApiProperty({ example: 10 })
-  slug: string;
+  slug!: string;
 
   @ApiProperty({ example: 'mã code' })
-  barcode: string;
+  barcode!: string;
 
   @ApiProperty({ example: '2028-02-01' })
-  expiry_date: Date;
+  expiry_date!: Date;
 
   @ApiProperty({ example: 'Nguồn gốc' })
-  origin: string;
+  origin!: string;
 
   @ApiProperty({ example: 10.05 })
-  weight_unit: string;
+  weight_unit!: string;
 
   @ApiProperty({ example: 'Mô tả' })
-  description: string;
+  description!: string;
 
   @ApiProperty({ example: 10 })
-  quantity: number;
+  quantity!: number;
 
   @ApiProperty({ example: 1 })
-  categoryId: number;
+  categoryId!: number;
 
   @ApiProperty({ example: 1 })
-  brandId: number;
+  brandId!: number;
 
   @ApiProperty({ example: 10 })
-  purchase: number;
+  purchase!: number;
 }

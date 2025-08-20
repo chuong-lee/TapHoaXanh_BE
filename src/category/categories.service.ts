@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CategoryRepository } from './categories.reposirory';
 import { CreateCategoryDto } from './dto/create-category.dto';
+import { FilterCategoryDto } from './dto/filter-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @Injectable()
@@ -23,6 +24,10 @@ export class CategoriesService {
 
   async findAll() {
     return await this.categoryRepository.findAll();
+  }
+
+  async getCategoriesWithPagination(filter: FilterCategoryDto) {
+    return await this.categoryRepository.filterCategories(filter);
   }
 
   async findOne(id: number) {
@@ -62,7 +67,8 @@ export class CategoriesService {
     // kiểm tra tồn tại trước khi xóa
     const existCategory = await this.categoryRepository.findById(id);
     if (!existCategory) throw new NotFoundException('Danh mục không tồn tại');
-    await this.categoryRepository.delete(id); // Giả sử có hàm này
+    await this.categoryRepository.deleteCategoryWithParentId({ parent_id: id });
+    await this.categoryRepository.delete(id);
     return { message: 'Xóa thành công' };
   }
 

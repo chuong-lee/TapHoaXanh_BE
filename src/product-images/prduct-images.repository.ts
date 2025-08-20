@@ -23,4 +23,20 @@ export class ProductImagesRepository extends BaseRepository<ProductImage> {
 
     return products;
   }
+
+  async findOneByProductId(id: number): Promise<ProductImage | null> {
+    return this.productImagesRepository.findOne({
+      where: { product: { id } },
+    });
+  }
+
+  async findAllByProductId(id: number): Promise<ProductImage[]> {
+    return this.productImagesRepository.find({
+      where: { product: { id } },
+    });
+  }
+
+  async deleteByProductId(id: number) {
+    return await this.productImagesRepository.delete({ product: { id } });
+  }
 }

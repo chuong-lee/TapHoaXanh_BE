@@ -1,37 +1,40 @@
 import { AbstractEntity } from 'src/database/database.entity';
 import { Order } from 'src/order/entities/order.entity';
 import { Users } from 'src/users/entities/users.entity';
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
 import { VoucherType } from '../enums/voucher-type.enum';
 
 @Entity('voucher')
 export class Voucher extends AbstractEntity<Voucher> {
   @Column()
-  code: string;
+  code!: string;
 
   @Column()
-  max_discount: number;
+  max_discount!: number;
 
   @Column()
-  min_order_value: number;
+  min_order_value!: number;
 
   @Column()
-  quantity: number;
+  quantity!: number;
 
   @Column()
-  is_used: boolean;
+  is_used!: boolean;
 
   @Column()
-  start_date: Date;
+  start_date!: Date;
 
   @Column()
-  end_date: Date;
+  end_date!: Date;
 
   @Column({ type: 'enum', enum: VoucherType, default: VoucherType.DISCOUNT })
-  type: VoucherType;
+  type?: VoucherType;
 
   @ManyToOne(() => Users, (users) => users.voucher)
-  users: Users;
+  @JoinColumn({ name: 'user_id' })
+  users!: Users;
+
   @ManyToOne(() => Order, (order) => order.voucher)
-  order: Order;
+  @JoinColumn({ name: 'order_id' })
+  order!: Order;
 }
