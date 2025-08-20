@@ -7,8 +7,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
-        const isProd = process.env.NODE_ENV === 'production';
-        console.log('🚀 Database running in:', isProd ? 'PRODUCTION' : 'LOCAL');
+        const script = process.env.npm_lifecycle_event;
+        const isProd = script === 'build' || script === 'start:prod';
+
+        console.log(`🚀 Running with script: ${script} => Mode: ${isProd ? 'PRODUCTION' : 'LOCAL'}`);
         return {
           type: 'mysql',
           host: isProd ? undefined : config.getOrThrow('MYSQL_HOST'),
