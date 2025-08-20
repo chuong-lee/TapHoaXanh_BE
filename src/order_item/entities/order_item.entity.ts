@@ -19,7 +19,6 @@ export class OrderItem extends AbstractEntity<OrderItem> {
   @ManyToOne(() => Order, (order) => order.orderItem)
   @JoinColumn({ name: 'order_id' })
   order!: Order;
-  
 
   @ManyToOne(() => ProductVariant, (productVariant) => productVariant.orderItem)
   @JoinColumn({ name: 'productVariant_id' })

@@ -1,8 +1,9 @@
 import { AbstractEntity } from 'src/database/database.entity';
-import { OrderItem } from 'src/order_item/entities/order_item.entity';
 import { Users } from 'src/users/entities/users.entity';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { PaymentMethod } from '../enums/payment-method.enum';
 import { Voucher } from 'src/voucher/entities/voucher.entity';
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { OrderItem } from 'src/order_item/entities/order_item.entity';
 
 @Entity('order')
 export class Order extends AbstractEntity<Order> {
@@ -10,7 +11,7 @@ export class Order extends AbstractEntity<Order> {
   total_price!: number;
 
   @Column()
-  note?: number;
+  note?: string;
 
   @Column()
   order_code!: string;
@@ -21,31 +22,11 @@ export class Order extends AbstractEntity<Order> {
   @Column()
   comment?: string;
 
-  @Column()
-  payment_method!: string;
+  @Column({ type: 'enum', enum: PaymentMethod })
+  payment?: PaymentMethod;
 
-  // Payment fields
-  @Column({ type: 'float', nullable: true })
-  payment_amount?: number;
-
-  @Column({ nullable: true })
-  payment_description?: string;
-
-  @Column({ nullable: true })
-  payment_status?: string;
-
-  @Column({ nullable: true })
-  transaction_id?: string;
-
-  @Column({ nullable: true })
-  gateway_response?: string;
-
-  @Column({ nullable: true })
-  currency?: string;
-
-  @ManyToOne(() => Users, (users) => users.order)
-  @JoinColumn({ name: 'user_id' })
-  users!: Users;
+  @ManyToOne(() => Users, (user) => user.order)
+  user!: Users;
 
   @OneToMany(() => Voucher, (voucher) => voucher.order)
   voucher?: Voucher[];
