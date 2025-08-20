@@ -1,54 +1,40 @@
-import { IsEnum, IsNotEmpty, IsOptional, IsString, IsNumber } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { PaymentMethod } from '../enums/payment-method.enum';
-import { PaymentStatus } from '../enums/payment-status.enum';
 
 export class CreateOrderDto {
+  @ApiProperty({ example: 500000, description: 'Tổng giá đơn hàng' })
   @IsNumber()
   @IsNotEmpty()
-  price: number;
+  total_price!: number;
 
-  @IsNumber()
-  @IsNotEmpty()
-  quantity: number;
-
+  @ApiPropertyOptional({ example: 'Giao trong giờ hành chính', description: 'Ghi chú đơn hàng' })
   @IsString()
   @IsOptional()
-  images?: string;
+  note!: string;
 
+  @ApiProperty({ example: 'ORD123456', description: 'Mã đơn hàng' })
+  @IsString()
+  @IsNotEmpty()
+  order_code!: string;
+
+  @ApiProperty({ example: 'PENDING', description: 'Trạng thái đơn hàng' })
+  @IsString()
+  @IsNotEmpty()
+  status?: string;
+
+  @ApiPropertyOptional({ example: 'Khách yêu cầu đóng gói kỹ', description: 'Bình luận từ khách hàng' })
   @IsString()
   @IsOptional()
   comment?: string;
 
-  // Payment fields
-  @IsNumber()
-  @IsOptional()
-  payment_amount?: number;
-
-  @IsString()
-  @IsOptional()
-  currency?: string;
-
-  @IsString()
-  @IsOptional()
-  payment_source?: string;
-
-  @IsString()
-  @IsOptional()
-  payment_description?: string;
-
+  @ApiPropertyOptional({ enum: PaymentMethod, example: PaymentMethod.MOMO, description: 'Phương thức thanh toán' })
   @IsEnum(PaymentMethod)
   @IsOptional()
-  payment_method?: PaymentMethod;
+  payment?: PaymentMethod;
 
-  @IsEnum(PaymentStatus)
-  @IsOptional()
-  payment_status?: PaymentStatus;
-
-  @IsString()
-  @IsOptional()
-  transaction_id?: string;
-
-  @IsString()
-  @IsOptional()
-  gateway_response?: string;
+  @ApiProperty({ example: 1, description: 'ID của user đặt hàng' })
+  @IsNumber()
+  @IsNotEmpty()
+  user_id!: number;
 }

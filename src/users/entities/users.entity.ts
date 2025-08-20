@@ -32,7 +32,7 @@ export class Users extends AbstractEntity<Users> {
   address?: Address[];
   @OneToMany(() => Voucher, (voucher) => voucher.users)
   voucher?: Voucher[];
-  @OneToMany(() => Order, (order) => order.users)
+  @OneToMany(() => Order, (order) => order.user)
   order?: Order[];
   @OneToMany(() => Rating, (rating) => rating.users)
   rating?: Rating[];

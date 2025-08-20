@@ -3,11 +3,11 @@ import { IsNumber, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 export class CreateVNPayPaymentDto {
   @IsNumber()
   @IsNotEmpty()
-  orderId: number;
+  orderId?: number;
 
   @IsNumber()
   @IsNotEmpty()
-  amount: number;
+  amount?: number;
 
   @IsString()
   @IsOptional()
@@ -19,11 +19,11 @@ export class CreateVNPayPaymentDto {
 }
 
 export class VNPayReturnDto {
-  vnp_ResponseCode: string;
-  vnp_TxnRef: string;
-  vnp_Amount: string;
-  vnp_TransactionNo: string;
-  vnp_SecureHash: string;
-  vnp_SecureHashType: string;
+  vnp_ResponseCode?: string;
+  vnp_TxnRef?: string;
+  vnp_Amount?: string;
+  vnp_TransactionNo?: string;
+  vnp_SecureHash?: string;
+  vnp_SecureHashType?: string;
   [key: string]: any;
 }

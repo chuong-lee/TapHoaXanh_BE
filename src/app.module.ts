@@ -52,7 +52,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
   providers: [
     {
       provide: APP_GUARD,
-      useClass: JwtGuard, // ✅ NestJS sẽ tự inject Reflector, JwtService, AuthService...
+      useClass: JwtGuard,
     },
   ],
 })
