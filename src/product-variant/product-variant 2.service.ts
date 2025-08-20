@@ -1,9 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ProductRepository } from '../products/products.repository';
+import { ProductRepository } from 'src/products/products.repository';
 import { CreateProductVariantDto } from './dto/create-product-variant.dto';
 import { UpdateProductVariantDto } from './dto/update-product-variant.dto';
 import { ProductVariantRepository } from './product-variant.repository';
-import { FilterProductVariantDto } from './dto/filter-product-variant.dto';
 
 @Injectable()
 export class ProductVariantService {
@@ -13,25 +12,22 @@ export class ProductVariantService {
   ) {}
 
   async create(dto: CreateProductVariantDto) {
+    const product = await this.productRepository.findById(dto.productId);
+    if (!product) throw new NotFoundException('Sản phẩm không tồn tại');
+
     const variant = this.variantRepository.create(dto);
-    const existProduct = await this.productRepository.findById(dto.productId);
-    if (!existProduct) throw new NotFoundException('Sản phẩm không tồn tại');
-    variant.product = existProduct;
     return await this.variantRepository.save(variant);
   }
 
   async findProductVariantsById(productId: number) {
-    const product = await this.variantRepository.findOne(productId);
+    const product = await this.productRepository.findById(productId);
     if (!product) throw new NotFoundException('Sản phẩm không tồn tại');
+
     return product;
   }
 
   async findAll() {
     return await this.variantRepository.findAll();
-  }
-
-  async getProductVariantsWithPagination(query: FilterProductVariantDto) {
-    return await this.variantRepository.filterProductVariant(query);
   }
 
   async update(id: number, dto: UpdateProductVariantDto) {
@@ -43,16 +39,6 @@ export class ProductVariantService {
     });
 
     return await this.variantRepository.save(updatedVariant);
-  }
-
-  async removeProductVariantByProductId(productId: number) {
-    const variants = await this.variantRepository.findOneByProductId(productId);
-    if (!variants) {
-      throw new NotFoundException('Không tìm thấy biến thể nào của sản phẩm này');
-    }
-
-    await this.variantRepository.deleteByProductId(productId); // xóa theo điều kiện
-    return { message: 'Xóa thành công tất cả biến thể' };
   }
 
   async remove(id: number) {

@@ -47,6 +47,6 @@ async function bootstrap() {
     ],
     customSiteTitle: 'API Documentation',
   });
-  await app.listen(process.env.PORT ?? 5000);
+  await app.listen(process.env.PORT ?? 4000);
 }
 bootstrap();
