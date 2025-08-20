@@ -103,6 +103,6 @@ export class AuthService implements IAuthService {
       text: `Mật khẩu mới của bạn là: ${newPass}`,
     });
 
-    return { message: 'Tạp hóa xanh đã gữi mật khẩu mới qua mail của bạn.' };
+    return { message: 'Tạp hóa xanh đã gửi mật khẩu mới qua mail của bạn.' };
   }
 }

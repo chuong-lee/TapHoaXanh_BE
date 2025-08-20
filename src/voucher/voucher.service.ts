@@ -4,7 +4,7 @@ import { UpdateVoucherDto } from './dto/update-voucher.dto';
 
 @Injectable()
 export class VoucherService {
-  create(createVoucherDto: CreateVoucherDto) {
+  create(_createVoucherDto: CreateVoucherDto) {
     return 'This action adds a new voucher';
   }
 
@@ -16,7 +16,7 @@ export class VoucherService {
     return `This action returns a #${id} voucher`;
   }
 
-  update(id: number, updateVoucherDto: UpdateVoucherDto) {
+  update(id: number, _updateVoucherDto: UpdateVoucherDto) {
     return `This action updates a #${id} voucher`;
   }
 
