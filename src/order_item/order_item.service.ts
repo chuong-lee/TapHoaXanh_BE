@@ -4,7 +4,7 @@ import { UpdateOrderItemDto } from './dto/update-order_item.dto';
 
 @Injectable()
 export class OrderItemService {
-  create(createOrderItemDto: CreateOrderItemDto) {
+  create(_createOrderItemDto: CreateOrderItemDto) {
     return 'This action adds a new orderItem';
   }
 
@@ -16,7 +16,7 @@ export class OrderItemService {
     return `This action returns a #${id} orderItem`;
   }
 
-  update(id: number, updateOrderItemDto: UpdateOrderItemDto) {
+  update(id: number, _updateOrderItemDto: UpdateOrderItemDto) {
     return `This action updates a #${id} orderItem`;
   }
 

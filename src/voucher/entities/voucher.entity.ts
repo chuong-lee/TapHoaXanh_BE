@@ -2,6 +2,7 @@ import { AbstractEntity } from 'src/database/database.entity';
 import { Order } from 'src/order/entities/order.entity';
 import { Users } from 'src/users/entities/users.entity';
 import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
+import { VoucherType } from '../enums/voucher-type.enum';
 
 @Entity('voucher')
 export class Voucher extends AbstractEntity<Voucher> {
@@ -25,6 +26,9 @@ export class Voucher extends AbstractEntity<Voucher> {
 
   @Column()
   end_date!: Date;
+
+  @Column({ type: 'enum', enum: VoucherType, default: VoucherType.DISCOUNT })
+  type?: VoucherType;
 
   @ManyToOne(() => Users, (users) => users.voucher)
   @JoinColumn({ name: 'user_id' })
