@@ -2,8 +2,8 @@ import { BadRequestException, Inject, Injectable, NotFoundException } from '@nes
 import { ICartItemService } from '../interfaces/icart_item-service.interface';
 import { CartItem } from '../entities/cart_item.entity';
 import { ICartItemRepository } from '../interfaces/icart_item-repository.interface';
-import { Cart } from 'src/cart/entities/cart.entity';
-import { ProductRepository } from 'src/products/products.repository';
+import { Cart } from '../../cart/entities/cart.entity';
+import { ProductRepository } from '../../products/products.repository';
 
 @Injectable()
 export class CartItemService implements ICartItemService {

@@ -1,9 +1,10 @@
-import { Controller, Get, Body, Put, Param, UseGuards, Req } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Put, Query, Req, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
+import { JwtGuard } from '../auth/guards/jwt.guard';
+import { FilterUserDto } from './dto/filter-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdatePasswordDto } from './dto/updatePassword-user.dto';
 import { IUsersService } from './interfaces/iusers-service.interface';
-import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
-import { JwtGuard } from 'src/auth/guards/jwt.guard';
 
 @Controller('users')
 export class UsersController {
@@ -19,6 +20,13 @@ export class UsersController {
   @Get()
   findAll() {
     return this.usersService.findAll();
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtGuard)
+  @Get('search')
+  async filterAllUser(@Query() userDto: FilterUserDto) {
+    return this.usersService.filterAllUser(userDto);
   }
 
   @ApiBearerAuth()
@@ -40,6 +48,13 @@ export class UsersController {
   @Put()
   async update(@Req() req: any, @Body() updateUserDto: UpdateUserDto) {
     return await this.usersService.updateUserInformation(req.user.sub, updateUserDto);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtGuard)
+  @Patch(':id')
+  async updateUserById(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
+    return await this.usersService.updateUserInformation(id, updateUserDto);
   }
 
   @ApiBearerAuth()

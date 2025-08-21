@@ -67,8 +67,8 @@ export class CategoriesService {
     // kiểm tra tồn tại trước khi xóa
     const existCategory = await this.categoryRepository.findById(id);
     if (!existCategory) throw new NotFoundException('Danh mục không tồn tại');
-    await this.categoryRepository.deleteCategoryWithParentId({ parent_id: id }); // Giả sử có hàm này
-    await this.categoryRepository.delete(id); // Giả sử có hàm này
+    await this.categoryRepository.deleteCategoryWithParentId({ parent_id: id });
+    await this.categoryRepository.delete(id);
     return { message: 'Xóa thành công' };
   }
 

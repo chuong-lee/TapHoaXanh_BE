@@ -5,24 +5,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
-      useFactory: (configService: ConfigService) => ({
+      useFactory: () => ({
         type: 'mysql',
-        host: configService.getOrThrow('MYSQL_HOST'),
-        port: configService.getOrThrow('MYSQL_PORT'),
-        database: configService.getOrThrow('MYSQL_DATABASE'),
-        username: configService.getOrThrow('MYSQL_USERNAME'),
-        password: configService.getOrThrow('MYSQL_PASSWORD'),
+        url: process.env.DATABASE_URL, // từ Vercel env
         autoLoadEntities: true,
-        synchronize: configService.get('MYSQL_SYNCHRONIZE') === 'true',
-        migrationsRun: false,
-        logging: false,
-        timezone: '+07:00',
-        // --------------- get datetime string default -------------------
-        supportBigNumbers: true,
-        dateStrings: true,
-        // --------------- get datetime string default -------------------
-        retryAttempts: 10,
-        retryDelay: 3000,
+        synchronize: true, // chỉ bật ở dev
+        ssl: {
+          rejectUnauthorized: false, // Aiven yêu cầu SSL
+        },
       }),
       inject: [ConfigService],
     }),

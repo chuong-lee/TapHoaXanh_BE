@@ -1,7 +1,7 @@
-import { AbstractEntity } from 'src/database/database.entity';
-import { Users } from 'src/users/entities/users.entity';
+import { AbstractEntity } from '../../database/database.entity';
+import { Users } from '../../users/entities/users.entity';
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
-import { loginType } from 'src/types/common.enum';
+import { loginType } from '../../types/common.enum';
 
 @Entity('token')
 export class Token extends AbstractEntity<Token> {
@@ -19,6 +19,6 @@ export class Token extends AbstractEntity<Token> {
   @Column({ type: 'enum', enum: loginType, default: loginType.EMAIL })
   logintype?: loginType;
   @OneToOne(() => Users, (user) => user.token)
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn({ name: 'user_id' })
   user!: Users;
 }

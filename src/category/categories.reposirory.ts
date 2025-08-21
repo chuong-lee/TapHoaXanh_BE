@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { BaseRepository } from 'src/database/abstract.repository';
+import { BaseRepository } from '../database/abstract.repository';
 import { Repository } from 'typeorm';
 import { FilterCategoryDto } from './dto/filter-category.dto';
 import { Category } from './entities/category.entity';

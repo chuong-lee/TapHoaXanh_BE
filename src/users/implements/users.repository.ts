@@ -3,12 +3,14 @@ import { Repository } from 'typeorm';
 import { Users } from '../entities/users.entity';
 import { IUsersRepository } from '../interfaces/iusers-repository.interface';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FilterUserDto } from '../dto/filter-user.dto';
+import { PaginationResult } from '../../interface/IPagination';
 
 @Injectable()
 export class UsersRepository implements IUsersRepository {
   constructor(
     @InjectRepository(Users)
-    private usersRepository: Repository<Users>,
+    private readonly usersRepository: Repository<Users>,
   ) {}
   async findAll(): Promise<Users[]> {
     return this.usersRepository.find();
@@ -31,5 +33,38 @@ export class UsersRepository implements IUsersRepository {
   async updateUser(id: number, userData: Partial<Users>): Promise<Users | null> {
     await this.usersRepository.update({ id }, userData);
     return await this.findById(id);
+  }
+
+  async filterUser(query: FilterUserDto): Promise<PaginationResult<Users>> {
+    const { search, role, page = 1, limit = 10 } = query;
+    const qb = this.usersRepository.createQueryBuilder('user');
+
+    if (search) {
+      qb.andWhere('(LOWER(user.name) LIKE LOWER(:search)) or (LOWER(user.email) LIKE LOWER(:search))', {
+        search: `%${search}%`,
+      });
+    }
+
+    if (role) {
+      qb.andWhere('(LOWER(user.role) LIKE LOWER(:role))', {
+        role: `%${role}%`,
+      });
+    }
+
+    qb.orderBy('user.id', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit);
+
+    const [items, total] = await qb.getManyAndCount();
+
+    return {
+      data: items,
+      meta: {
+        total,
+        page,
+        limit,
+        lastPage: Math.ceil(total / limit),
+      },
+    };
   }
 }

@@ -1,3 +1,7 @@
+import { IsNotEmpty, IsNumber } from 'class-validator';
+
 export class CreateProductImageDto {
-  productId: number;
+  @IsNumber()
+  @IsNotEmpty()
+  productId!: number;
 }

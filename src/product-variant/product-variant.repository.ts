@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { BaseRepository } from 'src/database/abstract.repository';
+import { BaseRepository } from '../database/abstract.repository';
 import { Repository } from 'typeorm';
 import { FilterProductVariantDto } from './dto/filter-product-variant.dto';
 import { ProductVariant } from './entities/product-variant.entity';
@@ -19,6 +19,16 @@ export class ProductVariantRepository extends BaseRepository<ProductVariant> {
       where: { id },
       relations: ['product'],
     });
+  }
+
+  async findOneByProductId(id: number): Promise<ProductVariant | null> {
+    return this.variantRepo.findOne({
+      where: { product: { id } },
+    });
+  }
+
+  async deleteByProductId(id: number) {
+    return await this.variantRepo.delete({ product: { id } });
   }
 
   async filterProductVariant(query: FilterProductVariantDto) {
@@ -43,7 +53,9 @@ export class ProductVariantRepository extends BaseRepository<ProductVariant> {
       qb.andWhere('pv.price_modifier <= :maxPrice', { maxPrice });
     }
 
-    qb.skip((page - 1) * limit).take(limit);
+    qb.orderBy('pv.id', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit);
 
     const [items, total] = await qb.getManyAndCount();
 

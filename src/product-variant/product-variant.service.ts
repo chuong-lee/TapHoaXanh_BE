@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ProductRepository } from 'src/products/products.repository';
+import { ProductRepository } from '../products/products.repository';
 import { CreateProductVariantDto } from './dto/create-product-variant.dto';
 import { UpdateProductVariantDto } from './dto/update-product-variant.dto';
 import { ProductVariantRepository } from './product-variant.repository';
@@ -45,10 +45,20 @@ export class ProductVariantService {
     return await this.variantRepository.save(updatedVariant);
   }
 
+  async removeProductVariantByProductId(productId: number) {
+    const variants = await this.variantRepository.findOneByProductId(productId);
+    if (!variants) {
+      throw new NotFoundException('Không tìm thấy biến thể nào của sản phẩm này');
+    }
+
+    await this.variantRepository.deleteByProductId(productId); // xóa theo điều kiện
+    return { message: 'Xóa thành công tất cả biến thể' };
+  }
+
   async remove(id: number) {
     const variant = await this.variantRepository.findById(id);
     if (!variant) throw new NotFoundException('Biến thể không tồn tại');
-    await this.variantRepository.delete(id); // Giả sử có hàm này
+    await this.variantRepository.delete(id);
     return { message: 'Xóa thành công' };
   }
 }

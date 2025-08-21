@@ -1,7 +1,7 @@
 // cart.controller.ts
 import { Controller, Post, Body, Req, UseGuards, Get } from '@nestjs/common';
 import { CreateCartDto } from './dto/create-cart.dto';
-import { JwtGuard } from 'src/auth/guards/jwt.guard';
+import { JwtGuard } from '../auth/guards/jwt.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { ICartService } from './interfaces/icart-service.interface';
 

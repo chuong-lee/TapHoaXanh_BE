@@ -21,6 +21,6 @@ try {
 
   console.log(`Migration created successfully: ${migrationsPath}/${migrationName}`);
 } catch (error) {
-  console.error('Error creating migration:', error.message);
+  console.error('Error creating migration:', (error as any).message);
   process.exit(1);
 }

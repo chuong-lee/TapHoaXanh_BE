@@ -1,11 +1,15 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { BrandRepository } from 'src/brand/brand.repsitory';
-import { CategoryRepository } from 'src/category/categories.reposirory';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BrandRepository } from '../brand/brand.repsitory';
+import { CategoryRepository } from '../category/categories.reposirory';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductRepository } from './products.repository';
 import { ProductFilterDto } from './dto/Filter-product.dto';
-
+import * as fs from 'fs';
+import * as util from 'util';
+import { join } from 'path';
+import { deleteFileIfExists } from '../utils/deleteImages';
+const writeFile = util.promisify(fs.writeFile);
 @Injectable()
 export class ProductsService {
   constructor(
@@ -13,16 +17,46 @@ export class ProductsService {
     private readonly categoryRepository: CategoryRepository,
     private readonly brandRepository: BrandRepository,
   ) {}
-  async create(createProductDto: CreateProductDto) {
+
+  async handleSingleFileUpload(file: Express.Multer.File, folderName: string) {
+    try {
+      const uploadDir = join(process.cwd(), 'uploads', folderName);
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+
+      const filename = Date.now() + '-' + file.originalname;
+      const filePath = join(uploadDir, filename);
+
+      await writeFile(filePath, file.buffer);
+
+      return {
+        filename,
+        path: `/uploads/${folderName}/${filename}`,
+      };
+    } catch (error) {
+      console.error('Upload lỗi:', error);
+      throw new InternalServerErrorException('Không thể upload file');
+    }
+  }
+
+  async create(createProductDto: CreateProductDto, image: Express.Multer.File) {
     const product = this.productRepository.create(createProductDto);
+    const existProductByCode = await this.productRepository.findOneByField('barcode', createProductDto.barcode);
+    if (existProductByCode) throw new BadRequestException('Mã code này đã được sử dụng');
+
     const existCategory = await this.categoryRepository.findById(createProductDto.categoryId);
-    if (!existCategory) throw new NotFoundException('Cate không tồn tại');
+    if (!existCategory) throw new NotFoundException('Danh mục này không tồn tại');
     product.category = existCategory;
+
     const existBrand = await this.brandRepository.findById(createProductDto.brandId);
-    if (!existBrand) throw new NotFoundException('brand không tồn tại');
+    if (!existBrand) throw new NotFoundException('Thương hiệu này không tồn tại');
     product.brand = existBrand;
-    const saveProduct = this.productRepository.save(product);
-    return saveProduct;
+
+    const uploadedImage = await this.handleSingleFileUpload(image, 'products');
+    product.images = uploadedImage.path;
+
+    return await this.productRepository.save(product);
   }
 
   async findAll() {
@@ -43,40 +77,53 @@ export class ProductsService {
     return existProduct;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
-  }
-
-  async update(id: number, updateProductDto: UpdateProductDto) {
-    // b1: kiểm tra sản phẩm tồn tại
+  async update(id: number, updateProductDto: UpdateProductDto, file?: Express.Multer.File) {
     const existProduct = await this.productRepository.findById(id);
+    if (!existProduct) throw new NotFoundException('Sản phẩm không tồn tại');
+
     if (updateProductDto.barcode) {
-      const idProduct = await this.productRepository.findByCode(updateProductDto.barcode);
-      if (idProduct) throw new BadRequestException('mã code sản phẩm đã tồn tại');
+      const idProduct = await this.productRepository.findOneByField('barcode', updateProductDto.barcode);
+      if (idProduct && idProduct.id !== id) throw new BadRequestException('Mã code này đã được sử dụng');
     }
 
-    if (!existProduct) throw new NotFoundException('san pham k ton tai');
+    if (file) {
+      deleteFileIfExists(existProduct.images);
+      const uploaded = await this.handleSingleFileUpload(file, 'products');
+      updateProductDto.images = uploaded.path;
+    }
 
-    //b2 cap nhat
     const updateProduct = this.productRepository.create({
       ...existProduct,
       ...updateProductDto,
     });
-    //b3 luu lai
+
     await this.productRepository.save(updateProduct);
-    //b4 hien thong bao
-    const data = {
-      message: 'cập nhật thành công',
+
+    return {
+      message: 'Cập nhật thành công',
       data_update: updateProduct,
     };
-    return data;
   }
 
   async remove(id: number) {
-    // kiểm tra tồn tại trước khi xóa
     const existProduct = await this.productRepository.findById(id);
     if (!existProduct) throw new NotFoundException('Sản phẩm không tồn tại');
-    await this.productRepository.delete(id); // Giả sử có hàm này
+
+    deleteFileIfExists(existProduct.images);
+
+    await this.productRepository.delete(id);
+
+    return { message: 'Xóa thành công' };
+  }
+
+  async removeByCategoryId(id: number) {
+    const existProduct = await this.productRepository.findByCategory(id);
+    if (!existProduct) throw new NotFoundException('Sản phẩm không tồn tại');
+
+    existProduct.map((item) => deleteFileIfExists(item.images));
+
+    await this.productRepository.deleteByCategoryId(id);
+
     return { message: 'Xóa thành công' };
   }
 

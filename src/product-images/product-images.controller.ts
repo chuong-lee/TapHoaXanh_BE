@@ -43,6 +43,11 @@ export class ProductImagesController {
     return this.productImagesService.update(+id, updateProductImageDto);
   }
 
+  @Delete('/by-product/:id')
+  removeProductImagesByProductId(@Param('id') id: string) {
+    return this.productImagesService.removeProductImagesByProductId(+id);
+  }
+
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.productImagesService.remove(+id);

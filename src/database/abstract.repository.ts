@@ -2,7 +2,7 @@ import { DeepPartial, FindOptionsWhere, ObjectLiteral, Repository } from 'typeor
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 export abstract class BaseRepository<T extends ObjectLiteral> {
-  constructor(private readonly repository: Repository<T>) {}
+  constructor(protected readonly repository: Repository<T>) {}
 
   async findAll() {
     return await this.repository.find();
@@ -30,5 +30,17 @@ export abstract class BaseRepository<T extends ObjectLiteral> {
 
   async update(id: number, data: QueryDeepPartialEntity<T>) {
     return this.repository.update(id, data);
+  }
+
+  async findByField<K extends keyof T>(field: K, value: T[K]) {
+    return this.repository.find({
+      where: { [field]: value } as FindOptionsWhere<T>,
+    });
+  }
+
+  async findOneByField<K extends keyof T>(field: K, value: T[K]) {
+    return this.repository.findOne({
+      where: { [field]: value } as FindOptionsWhere<T>,
+    });
   }
 }
