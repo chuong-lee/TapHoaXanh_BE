@@ -24,6 +24,13 @@ export class UsersController {
 
   @ApiBearerAuth()
   @UseGuards(JwtGuard)
+  @Get('/count')
+  countNumberOfUser() {
+    return this.usersService.countNumberOfUser();
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtGuard)
   @Get('search')
   async filterAllUser(@Query() userDto: FilterUserDto) {
     return this.usersService.filterAllUser(userDto);

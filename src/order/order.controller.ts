@@ -7,12 +7,14 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { OrderService } from './order.service';
+import { FilterOrderDto } from './dto/filter-order.dto';
 
 @Controller('order')
 export class OrderController {
@@ -30,6 +32,16 @@ export class OrderController {
   @Get()
   findAll() {
     return this.orderService.findAll();
+  }
+
+  @Get('/search')
+  filterAllOrder(@Query() filter: FilterOrderDto) {
+    return this.orderService.filterAllOrder(filter);
+  }
+
+  @Get('/count')
+  countNumberOfOrder() {
+    return this.orderService.countNumberOfOrder();
   }
 
   @Get(':id')

@@ -67,4 +67,8 @@ export class UsersService implements IUsersService {
   async filterAllUser(userDto: FilterUserDto): Promise<PaginationResult<Users>> {
     return await this._usersRepository.filterUser(userDto);
   }
+
+  async countNumberOfUser() {
+    return await this._usersRepository.countNumberOfUser();
+  }
 }
