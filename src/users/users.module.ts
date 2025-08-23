@@ -8,12 +8,7 @@ import { AuthModule } from '../auth/auth.module';
 import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Users]), 
-    JwtModule, 
-    forwardRef(() => AuthModule),
-    CloudinaryModule
-  ],
+  imports: [TypeOrmModule.forFeature([Users]), JwtModule, forwardRef(() => AuthModule), CloudinaryModule],
   controllers: [UsersController],
   providers: [UsersRepositoryProvider, UsersServiceProvider],
   exports: [UsersRepositoryProvider, UsersServiceProvider],

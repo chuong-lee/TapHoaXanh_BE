@@ -1,12 +1,12 @@
-import { 
-  Body, 
-  Controller, 
-  Get, 
-  Param, 
-  Patch, 
-  Put, 
-  Query, 
-  Req, 
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Put,
+  Query,
+  Req,
   UseGuards,
   Post,
   UseInterceptors,
@@ -117,10 +117,10 @@ export class UsersController {
       },
     },
   })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Upload avatar thành công',
-    type: UploadAvatarResponseDto
+    type: UploadAvatarResponseDto,
   })
   @ApiResponse({ status: 400, description: 'File không hợp lệ hoặc lỗi upload' })
   @ApiResponse({ status: 401, description: 'Không có quyền truy cập' })
@@ -147,7 +147,7 @@ export class UsersController {
       if (!result) {
         throw new BadRequestException('Không thể cập nhật avatar');
       }
-      
+
       return {
         success: true,
         data: {
@@ -186,10 +186,10 @@ export class UsersController {
       },
     },
   })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Upload avatar thành công',
-    type: UploadAvatarResponseDto
+    type: UploadAvatarResponseDto,
   })
   @ApiResponse({ status: 400, description: 'File không hợp lệ hoặc lỗi upload' })
   @ApiResponse({ status: 401, description: 'Không có quyền truy cập' })
@@ -222,7 +222,7 @@ export class UsersController {
       if (!result) {
         throw new BadRequestException('Không thể cập nhật avatar');
       }
-      
+
       return {
         success: true,
         data: {
