@@ -12,7 +12,7 @@ async function bootstrap() {
       transform: true,
     }),
   );
-  // app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api');
   app.enableCors({
     origin: 'http://localhost:3000',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
@@ -30,7 +30,7 @@ async function bootstrap() {
     })
     .build();
   const document = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document, {
+  SwaggerModule.setup('swagger', app, document, {
     useGlobalPrefix: true,
     jsonDocumentUrl: 'swagger/json',
     swaggerOptions: {
