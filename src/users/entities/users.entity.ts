@@ -1,13 +1,12 @@
+import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { Address } from '../../address/entities/address.entity';
 import { Token } from '../../auth/entities/token.entity';
 import { Cart } from '../../cart/entities/cart.entity';
 import { AbstractEntity } from '../../database/database.entity';
 import { Order } from '../../order/entities/order.entity';
 import { Rating } from '../../rating/entities/rating.entity';
-import { Voucher } from '../../voucher/entities/voucher.entity';
-import { Wishlist } from '../../wishlist/entities/wishlist.entity';
-import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { TUserRole } from '../../types/common.enum';
+import { Wishlist } from '../../wishlist/entities/wishlist.entity';
 @Entity('users')
 export class Users extends AbstractEntity<Users> {
   @Column('varchar', { length: 255 })
@@ -30,8 +29,7 @@ export class Users extends AbstractEntity<Users> {
 
   @OneToMany(() => Address, (address) => address.users)
   address?: Address[];
-  @OneToMany(() => Voucher, (voucher) => voucher.users)
-  voucher?: Voucher[];
+
   @OneToMany(() => Order, (order) => order.user)
   order?: Order[];
   @OneToMany(() => Rating, (rating) => rating.users)

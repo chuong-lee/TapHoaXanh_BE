@@ -1,18 +1,16 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { IUsersRepository } from 'src/users/interfaces/iusers-repository.interface';
-import { Repository } from 'typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { FilterOrderDto } from './dto/filter-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { Order } from './entities/order.entity';
 import { PaymentStatus } from './enums/payment-status.enum';
-import { FilterOrderDto } from './dto/filter-order.dto';
+import { OrderRepository } from './order.repository';
 
 @Injectable()
 export class OrderService {
   constructor(
-    @InjectRepository(Order)
-    private orderRepository: Repository<Order>,
+    private readonly orderRepository: OrderRepository,
 
     @Inject(IUsersRepository) // 👈 inject đúng token
     private readonly userRepository: IUsersRepository,
@@ -31,78 +29,19 @@ export class OrderService {
   }
 
   async findAll(): Promise<Order[]> {
-    return this.orderRepository.find({
-      relations: ['users', 'voucher', 'orderItem'],
-    });
+    return this.orderRepository.findAll();
   }
 
   async filterAllOrder(query: FilterOrderDto) {
-    const { search, status, page = 1, limit = 10 } = query;
-
-    const qb = this.orderRepository
-      .createQueryBuilder('o')
-      .innerJoin('o.user', 'u')
-      .select([
-        'o.id AS id',
-        'o.order_code AS orderCode',
-        'o.status AS status',
-        'o.total_price AS totalPrice',
-        'u.name AS userName',
-        'u.phone AS userPhone',
-      ]);
-
-    if (search) {
-      qb.andWhere(
-        `(LOWER(o.order_code) LIKE LOWER(:search)
-        OR LOWER(u.name) LIKE LOWER(:search)
-        OR LOWER(u.phone) LIKE LOWER(:search))`,
-        { search: `%${search}%` },
-      );
-    }
-
-    if (status) {
-      qb.andWhere(`LOWER(o.status) LIKE LOWER(:status)`, {
-        status: `%${status}%`,
-      });
-    }
-
-    qb.orderBy('o.id', 'DESC')
-      .skip((page - 1) * limit)
-      .take(limit);
-
-    const [items, total] = await Promise.all([
-      qb.getRawMany(),
-      qb
-        .clone()
-        .select('COUNT(o.id)', 'count')
-        .getRawOne()
-        .then((r) => Number(r.count)),
-    ]);
-
-    return {
-      data: items,
-      meta: {
-        total,
-        page,
-        limit,
-        lastPage: Math.ceil(total / limit),
-      },
-    };
+    return this.orderRepository.filterAllOrder(query);
   }
 
   async findOne(id: number): Promise<Order> {
-    const order = await this.orderRepository.findOne({
-      where: { id },
-      relations: ['users', 'voucher', 'orderItem'],
-    });
-    if (!order) throw new NotFoundException(`Order with id ${id} not found`);
-    return order;
+    return this.orderRepository.findOne(id);
   }
 
   async update(id: number, updateOrderDto: UpdateOrderDto): Promise<Order> {
-    const order = await this.orderRepository.preload({ id: Number(id), ...updateOrderDto });
-    if (!order) throw new NotFoundException(`Order with id ${id} not found`);
-    return this.orderRepository.save(order);
+    return this.orderRepository.updateOrder(id, updateOrderDto);
   }
 
   async remove(id: number): Promise<void> {
@@ -400,15 +339,11 @@ export class OrderService {
   // }
 
   async findOnePayment(id: number): Promise<Order> {
-    const order = await this.orderRepository.findOneBy({ id });
-    if (!order) throw new NotFoundException(`Order with id ${id} not found`);
-    return order;
+    return this.orderRepository.findOnePayment(id);
   }
 
   async updatePayment(id: number, updateData: Partial<Order>): Promise<Order> {
-    const order = await this.orderRepository.preload({ id: Number(id), ...updateData });
-    if (!order) throw new NotFoundException(`Order with id ${id} not found`);
-    return this.orderRepository.save(order);
+    return this.orderRepository.updatePayment(id, updateData);
   }
 
   async removePayment(id: number): Promise<void> {
@@ -417,8 +352,6 @@ export class OrderService {
   }
 
   async countNumberOfOrder(): Promise<number> {
-    return await this.orderRepository.count({
-      where: { status: PaymentStatus.SUCCESS },
-    });
+    return this.orderRepository.countNumberOfOrder();
   }
 }
