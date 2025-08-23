@@ -13,4 +13,5 @@ export abstract class IUsersRepository {
   abstract updateUser(id: number, userData: Partial<Users>): Promise<Users | null>;
   abstract filterUser(userData: FilterUserDto): Promise<PaginationResult<Users>>;
   abstract updateAvatar(id: number, imageUrl: string): Promise<Users | null>;
+  abstract countNumberOfUser(): Promise<number>;
 }

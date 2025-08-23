@@ -41,9 +41,6 @@ export class Product extends AbstractEntity<Product> {
   @Column({ nullable: true })
   description?: string;
 
-  @Column()
-  quantity!: number;
-
   @Column({ default: 0 })
   purchase!: number;
 

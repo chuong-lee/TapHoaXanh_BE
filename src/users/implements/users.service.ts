@@ -92,5 +92,7 @@ export class UsersService implements IUsersService {
     } catch (error) {
       throw new BadRequestException(`Lỗi upload avatar: ${(error as Error).message}`);
     }
+  async countNumberOfUser() {
+    return await this._usersRepository.countNumberOfUser();
   }
 }

@@ -38,25 +38,46 @@ export class OrderService {
 
   async filterAllOrder(query: FilterOrderDto) {
     const { search, status, page = 1, limit = 10 } = query;
-    const qb = this.orderRepository.createQueryBuilder('order');
+
+    const qb = this.orderRepository
+      .createQueryBuilder('o')
+      .innerJoin('o.user', 'u')
+      .select([
+        'o.id AS id',
+        'o.order_code AS orderCode',
+        'o.status AS status',
+        'o.total_price AS totalPrice',
+        'u.name AS userName',
+        'u.phone AS userPhone',
+      ]);
 
     if (search) {
-      qb.andWhere('(LOWER(order.order_code) LIKE LOWER(:search)) or (LOWER(order.order_code) LIKE LOWER(:search))', {
-        search: `%${search}%`,
-      });
+      qb.andWhere(
+        `(LOWER(o.order_code) LIKE LOWER(:search)
+        OR LOWER(u.name) LIKE LOWER(:search)
+        OR LOWER(u.phone) LIKE LOWER(:search))`,
+        { search: `%${search}%` },
+      );
     }
 
     if (status) {
-      qb.andWhere('(LOWER(user.role) LIKE LOWER(:role))', {
-        role: `%${status}%`,
+      qb.andWhere(`LOWER(o.status) LIKE LOWER(:status)`, {
+        status: `%${status}%`,
       });
     }
 
-    qb.orderBy('pv.id', 'DESC')
+    qb.orderBy('o.id', 'DESC')
       .skip((page - 1) * limit)
       .take(limit);
 
-    const [items, total] = await qb.getManyAndCount();
+    const [items, total] = await Promise.all([
+      qb.getRawMany(),
+      qb
+        .clone()
+        .select('COUNT(o.id)', 'count')
+        .getRawOne()
+        .then((r) => Number(r.count)),
+    ]);
 
     return {
       data: items,
@@ -393,5 +414,11 @@ export class OrderService {
   async removePayment(id: number): Promise<void> {
     const result = await this.orderRepository.delete(id);
     if (result.affected === 0) throw new NotFoundException(`Order with id ${id} not found`);
+  }
+
+  async countNumberOfOrder(): Promise<number> {
+    return await this.orderRepository.count({
+      where: { status: PaymentStatus.SUCCESS },
+    });
   }
 }
