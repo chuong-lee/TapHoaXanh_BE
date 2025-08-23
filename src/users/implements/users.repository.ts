@@ -73,7 +73,6 @@ export class UsersRepository implements IUsersRepository {
     await this.usersRepository.update({ id }, { image: imageUrl });
     return await this.findById(id);
   }
-
   async countNumberOfUser(): Promise<number> {
     const total = await this.usersRepository.count({
       where: { role: TUserRole.USER },
