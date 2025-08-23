@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { VoucherService } from './voucher.service';
 import { CreateVoucherDto } from './dto/create-voucher.dto';
 import { UpdateVoucherDto } from './dto/update-voucher.dto';
+import { FilterVoucherDto } from './dto/filter-voucher.dto';
 
 @Controller('voucher')
 export class VoucherController {
@@ -17,9 +18,14 @@ export class VoucherController {
     return this.voucherService.findAll();
   }
 
+  @Get('/search')
+  filterAllVoucher(@Query() query: FilterVoucherDto) {
+    return this.voucherService.filterAllVoucher(query);
+  }
+
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.voucherService.findOne(+id);
+  findOne(@Param('id') id: number) {
+    return this.voucherService.findOne(id);
   }
 
   @Patch(':id')
