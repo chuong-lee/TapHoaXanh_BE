@@ -22,6 +22,7 @@ import { NewsModule } from './news/news.module';
 import { OrderItemModule } from './order_item/order_item.module';
 import { RatingModule } from './rating/rating.module';
 import { WishlistModule } from './wishlist/wishlist.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
     CartModule,
     CartItemModule,
     NewsModule,
+    CloudinaryModule,
   ],
   controllers: [],
   providers: [

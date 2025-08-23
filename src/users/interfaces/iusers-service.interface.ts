@@ -13,5 +13,5 @@ export abstract class IUsersService {
   abstract updateUserInformation(id: number, updateUserDto: UpdateUserDto): Promise<Users | null>;
   abstract getUserInformation(id: number): Promise<ProfileDto | null>;
   abstract filterAllUser(userDto: FilterUserDto): Promise<PaginationResult<Users>>;
-  abstract countNumberOfUser(): Promise<number>;
+  abstract updateAvatar(userId: number, file: Express.Multer.File): Promise<Users | null>;
 }
