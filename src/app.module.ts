@@ -19,7 +19,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
 import { CartModule } from './cart/cart.module';
 import { CartItemModule } from './cart_item/cart_item.module';
 import { NewsModule } from './news/news.module';
-import { CategoryChildModule } from './category-child/category-child.module';
+
 
 @Module({
   imports: [
@@ -45,7 +45,7 @@ import { CategoryChildModule } from './category-child/category-child.module';
     CartModule,
     CartItemModule,
     NewsModule,
-    CategoryChildModule,
+
   ],
   controllers: [],
   providers: [],

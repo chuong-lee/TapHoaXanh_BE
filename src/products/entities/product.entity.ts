@@ -7,7 +7,6 @@ import { ProductImage } from 'src/product-images/entities/product-image.entity';
 import { ProductVariant } from 'src/product-variant/entities/product-variant.entity';
 import { Rating } from 'src/rating/entities/rating.entity';
 import { Wishlist } from 'src/wishlist/entities/wishlist.entity';
-import { CategoryChild } from '../../category-child/entities/category-child.entity';
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 
 import { JoinColumn } from 'typeorm';
@@ -50,17 +49,20 @@ export class Product extends AbstractEntity<Product> {
   @Column({ default: 0 })
   purchase: number;
 
+  // Sửa tên cột để khớp với database
   @ManyToOne(() => Category, (category) => category.product)
+  @JoinColumn({ name: 'category_id' })
   category: Category;
+
+    @ManyToOne(() => Brand, (brand) => brand.products)
+  @JoinColumn({ name: 'brand_id' })
+  brand: Brand;
 
   @OneToMany(() => ProductVariant, (variant) => variant.product)
   variants: ProductVariant[];
 
   @OneToMany(() => ProductImage, (image) => image.product)
   image: ProductImage;
-
-  @ManyToOne(() => Brand, (brand) => brand.product)
-  brand: Brand;
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
   orderItem: OrderItem[];
@@ -73,8 +75,4 @@ export class Product extends AbstractEntity<Product> {
 
   @OneToMany(() => CartItem, (item) => item.cart)
   cartItems: CartItem[];
-
-  @ManyToOne(() => CategoryChild, (child) => child.products, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'category_childId' })
-  category_child: CategoryChild;
 }

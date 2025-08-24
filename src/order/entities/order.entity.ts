@@ -1,59 +1,72 @@
-import { AbstractEntity } from 'src/database/database.entity';
-import { OrderItem } from 'src/order_item/entities/order_item.entity';
-import { Users } from 'src/users/entities/users.entity';
-import { Voucher } from 'src/voucher/entities/voucher.entity';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { AbstractEntity } from '../../database/database.entity';
+import { OrderItem } from '../../order_item/entities/order_item.entity';
+import { Users } from '../../users/entities/users.entity';
+import { Voucher } from '../../voucher/entities/voucher.entity';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+import { PaymentMethod } from '../enums/payment-method.enum';
+import { PaymentStatus } from '../enums/payment-status.enum';
+
 @Entity('order')
 export class Order extends AbstractEntity<Order> {
+  @Column()
+  total_price: number = 0;
 
-  @Column({ type: 'float', nullable: true })
-  price: number;
-  @Column({ type: 'float', nullable: true })
-  discount?: number;
-
-  @Column({ type: 'float', nullable: true })
-  freeship?: number;
-
-  @Column({ type: 'float', nullable: true })
-  shipping_fee?: number;
+  @Column({ nullable: true })
+  note?: string;
 
   @Column()
-  quantity: number;
+  order_code: string = '';
 
   @Column()
-  images: string;
+  status: string = '';
 
-  @Column()
-  comment: string;
+  @Column({ type: 'enum', enum: PaymentMethod, nullable: true })
+  payment_method?: PaymentMethod;
 
-  // Payment fields
-  @Column({ type: 'float', nullable: true })
+  @Column({ type: 'enum', enum: PaymentStatus, default: PaymentStatus.PENDING })
+  payment_status: PaymentStatus = PaymentStatus.PENDING;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
   payment_amount?: number;
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true })
   payment_description?: string;
 
-  @Column({ nullable: true })
-  payment_method?: string;
-
-  @Column({ nullable: true })
-  payment_status?: string;
-
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   transaction_id?: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true })
   gateway_response?: string;
 
-  @Column({ nullable: true })
-  currency?: string;
+  @Column({ type: 'varchar', length: 10, default: 'VND' })
+  currency: string = 'VND';
 
-  @ManyToOne(() => Users, (users) => users.order)
-  users: Users;
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  discount: number = 0;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  freeship: number = 0;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+  shipping_fee: number = 0;
+
+  @Column({ type: 'int', default: 1 })
+  quantity: number = 1;
+
+  @Column({ type: 'text', nullable: true })
+  images?: string;
+
+  @Column({ type: 'text', nullable: true })
+  comment?: string;
+
+  @ManyToOne(() => Users, (user) => user.order)
+  @JoinColumn({ name: 'user_id' })
+  user!: Users;
 
   @ManyToOne(() => Voucher, (voucher) => voucher.order, { nullable: true })
-  voucher: Voucher;
+  @JoinColumn({ name: 'voucher_id' })
+  voucher?: Voucher;
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
-  orderItem: OrderItem[];
+  orderItem!: OrderItem[];
 }

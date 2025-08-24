@@ -12,4 +12,8 @@ export class BrandRepository extends BaseRepository<Brand> {
   ) {
     super(brandRepository);
   }
+
+  async findAll() {
+    return this.brandRepository.find();
+  }
 }

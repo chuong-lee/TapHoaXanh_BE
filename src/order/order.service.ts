@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -28,11 +28,10 @@ export class OrderService {
   // Order CRUD operations
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
     const order = this.orderRepository.create({
-      price: createOrderDto.price,
-      quantity: createOrderDto.quantity,
-      images: createOrderDto.images,
-      comment: createOrderDto.comment,
-      currency: createOrderDto.currency || 'VND',
+      total_price: createOrderDto.price, // Sửa từ price thành total_price
+      note: createOrderDto.comment,
+      order_code: this.generateOrderCode(),
+      status: 'pending',
       payment_status: createOrderDto.payment_status || PaymentStatus.PENDING,
       payment_amount: createOrderDto.payment_amount,
       payment_description: createOrderDto.payment_description,
@@ -100,18 +99,21 @@ export class OrderService {
 
     // Tạo order mới
     const order = this.orderRepository.create({
-      price: total,
+      total_price: total,
+      note: createPaymentDto.description || 'Thanh toan qua cổng thanh toán',
+      order_code: this.generateOrderCode(),
+      status: 'pending',
+      payment_amount: finalAmount,
+      payment_description: createPaymentDto.description,
+      payment_method: createPaymentDto.payment_method,
+      payment_status: PaymentStatus.PENDING,
+      currency: createPaymentDto.currency || 'VND',
       discount,
       freeship,
       shipping_fee: shippingFee,
       quantity: (createPaymentDto as any).orderItems?.length || 1,
       images: (createPaymentDto as any).orderItems?.[0]?.image || '',
       comment: createPaymentDto.description || 'Thanh toan qua cổng thanh toán',
-      payment_amount: finalAmount,
-      payment_description: createPaymentDto.description,
-      payment_method: createPaymentDto.payment_method,
-      payment_status: PaymentStatus.PENDING,
-      currency: createPaymentDto.currency || 'VND',
     });
 
     const savedOrder = await this.orderRepository.save(order);
@@ -125,7 +127,7 @@ export class OrderService {
       case PaymentMethod.BANK_TRANSFER:
         return this.createBankTransferPayment(savedOrder, finalAmount);
       default:
-        throw new InternalServerErrorException('Unsupported payment method');
+        throw new BadRequestException('Phương thức thanh toán không được hỗ trợ');
     }
   }
 
@@ -319,6 +321,12 @@ export class OrderService {
     const bankCode = '970436'; // Mã ngân hàng Vietcombank
     const qrString = `https://img.vietqr.io/image/${bankCode}-${accountNumber}-compact2.jpg?amount=${amount}&addInfo=${encodeURIComponent(content)}`;
     return qrString;
+  }
+
+  private generateOrderCode(): string {
+    const timestamp = Date.now();
+    const random = Math.floor(Math.random() * 1000);
+    return `ORDER-${timestamp}-${random}`;
   }
 
   async confirmBankTransfer(confirmDto: ConfirmBankTransferDto): Promise<Order> {

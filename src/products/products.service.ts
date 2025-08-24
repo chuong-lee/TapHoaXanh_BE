@@ -15,19 +15,50 @@ export class ProductsService {
   ) {}
   async create(createProductDto: CreateProductDto) {
     const product = this.productRepository.create(createProductDto);
-    const existCategory = await this.categoryRepository.findById(createProductDto.categoryId);
-    if (!existCategory) throw new NotFoundException('Danh mục không tồn tại');
-    product.category = existCategory;
-    const existBrand = await this.brandRepository.findById(createProductDto.brandId);
-    if (!existBrand) throw new NotFoundException('Thương hiệu không tồn tại');
-    product.brand = existBrand;
-    const saveProduct = await this.productRepository.save(product); // thêm await
+    // Kiểm tra category
+    if (createProductDto.categoryId) {
+      const existCategory = await this.categoryRepository.findById(createProductDto.categoryId);
+      if (!existCategory) throw new NotFoundException('Danh mục không tồn tại');
+      product.category = existCategory;
+    }
+    // Kiểm tra brand
+    if (createProductDto.brandId) {
+      const existBrand = await this.brandRepository.findById(createProductDto.brandId);
+      if (!existBrand) throw new NotFoundException('Thương hiệu không tồn tại');
+      product.brand = existBrand;
+    }
+    const saveProduct = await this.productRepository.save(product);
     return saveProduct;
   }
 
   async findAll() {
-    return await this.productRepository.findAll();
+    try {
+      console.log('Fetching products...');
+      const products = await this.productRepository.findAllWithDetails();
+      console.log('Products found:', products.length);
+      return products;
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      throw error;
+    }
   }
+
+  // private getTestProducts() {
+  //   return [
+  //     {
+  //       id: 1,
+  //       name: 'Sản phẩm test 1',
+  //       price: 25000,
+  //       discount: 10,
+  //       images: 'https://via.placeholder.com/300x300?text=Test+Product+1',
+  //       slug: 'san-pham-test-1',
+  //       barcode: 'TEST001',
+  //       description: 'Sản phẩm test mẫu số 1',
+  //       quantity: 100
+  //     },
+  //     // ... thêm 4 sản phẩm khác
+  //   ];
+  // }
 
   // show sp theo danh muc
   async findByCategory(categoryId: number) {
@@ -44,9 +75,14 @@ export class ProductsService {
   }
 
   async findOne(id: number) {
-    const existProduct = await this.productRepository.findById(id);
-    if (!existProduct) throw new NotFoundException('Sản phẩm không tồn tại');
-    return existProduct;
+    try {
+      const product = await this.productRepository.findById(id);
+      if (!product) throw new NotFoundException('Sản phẩm không tồn tại');
+      return product;
+    } catch (error) {
+      console.error('Error fetching product:', error);
+      throw error;
+    }
   }
 
   async update(id: number, updateProductDto: UpdateProductDto) {
