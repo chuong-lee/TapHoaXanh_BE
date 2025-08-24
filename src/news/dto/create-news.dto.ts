@@ -5,7 +5,7 @@ export class CreateNewsDto {
   @ApiProperty({ description: 'Tên bài viết', example: 'Tin tức về sản phẩm mới' })
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name?: string;
 
   @ApiProperty({ description: 'Tóm tắt bài viết', example: 'Tóm tắt ngắn gọn về bài viết', required: false })
   @IsString()
@@ -24,7 +24,7 @@ export class CreateNewsDto {
   @ApiProperty({ description: 'Nội dung chi tiết bài viết', example: 'Nội dung đầy đủ của bài viết...' })
   @IsString()
   @IsNotEmpty()
-  description: string;
+  description?: string;
 
   @ApiProperty({ description: 'ID tác giả', example: 1, required: false })
   @IsInt()

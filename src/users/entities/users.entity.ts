@@ -1,13 +1,12 @@
-import { Address } from 'src/address/entities/address.entity';
-import { Token } from 'src/auth/entities/token.entity';
-import { Cart } from 'src/cart/entities/cart.entity';
-import { AbstractEntity } from 'src/database/database.entity';
-import { Order } from 'src/order/entities/order.entity';
-import { Rating } from 'src/rating/entities/rating.entity';
-import { Voucher } from 'src/voucher/entities/voucher.entity';
-import { Wishlist } from 'src/wishlist/entities/wishlist.entity';
-import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
-import { TUserRole } from 'src/types/common.enum';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
+import { Address } from '../../address/entities/address.entity';
+import { Token } from '../../auth/entities/token.entity';
+import { Cart } from '../../cart/entities/cart.entity';
+import { AbstractEntity } from '../../database/database.entity';
+import { Order } from '../../order/entities/order.entity';
+import { Rating } from '../../rating/entities/rating.entity';
+import { TUserRole } from '../../types/common.enum';
+import { Wishlist } from '../../wishlist/entities/wishlist.entity';
 @Entity('users')
 export class Users extends AbstractEntity<Users> {
   @Column('varchar', { length: 255 })
@@ -30,11 +29,9 @@ export class Users extends AbstractEntity<Users> {
 
   @OneToMany(() => Address, (address) => address.users)
   address?: Address[];
-  @OneToMany(() => Voucher, (voucher) => voucher.users)
-  voucher?: Voucher[];
+
   @OneToMany(() => Order, (order) => order.user)
   order?: Order[];
-
   @OneToMany(() => Rating, (rating) => rating.users)
   rating?: Rating[];
   @OneToMany(() => Wishlist, (wishlist) => wishlist.users)
@@ -42,5 +39,6 @@ export class Users extends AbstractEntity<Users> {
   @OneToMany(() => Cart, (cart) => cart.user)
   cart?: Cart[];
   @OneToOne(() => Token, (token) => token.user, { nullable: true })
+  @JoinColumn({ name: 'token_id' })
   token?: Token;
 }

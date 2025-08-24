@@ -2,6 +2,8 @@ import { Users } from '../entities/users.entity';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { UpdatePasswordDto } from '../dto/updatePassword-user.dto';
 import { ProfileDto } from '../dto/profile-user.dto';
+import { FilterUserDto } from '../dto/filter-user.dto';
+import { PaginationResult } from '../../interface/IPagination';
 
 export abstract class IUsersService {
   abstract findByEmail(email: string): Promise<Users | null>;
@@ -10,4 +12,7 @@ export abstract class IUsersService {
   abstract findAll(): Promise<Users[]>;
   abstract updateUserInformation(id: number, updateUserDto: UpdateUserDto): Promise<Users | null>;
   abstract getUserInformation(id: number): Promise<ProfileDto | null>;
+  abstract filterAllUser(userDto: FilterUserDto): Promise<PaginationResult<Users>>;
+  abstract updateAvatar(userId: number, file: Express.Multer.File): Promise<Users | null>;
+  abstract countNumberOfUser(): Promise<number>;
 }

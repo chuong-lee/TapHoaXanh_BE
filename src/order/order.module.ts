@@ -1,18 +1,15 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { OrderService } from './order.service';
-import { SePayService } from './sepay.service';
-import { VNPayService } from './vnpay.service';
-import { OrderController } from './order.controller';
 import { Order } from './entities/order.entity';
-import { PaymentLog } from './entities/payment-log.entity';
+import { OrderController } from './order.controller';
+import { OrderService } from './order.service';
+import { UsersModule } from 'src/users/users.module';
+import { OrderRepository } from './order.repository';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Order, PaymentLog]),
-  ],
+  imports: [TypeOrmModule.forFeature([Order]), UsersModule],
   controllers: [OrderController],
-  providers: [OrderService, SePayService, VNPayService],
-  exports: [OrderService, SePayService, VNPayService],
+  providers: [OrderService, OrderRepository],
+  exports: [OrderService, OrderRepository],
 })
 export class OrderModule {}

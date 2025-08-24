@@ -1,11 +1,11 @@
 export class CreateCartItemDto {
-  quantity: number;
+  quantity!: number;
 
-  total_price: number;
+  total_price!: number;
 
-  price: number;
+  price!: number;
 
-  productId: number;
+  productId!: number;
 
-  cartId: number;
+  cartId!: number;
 }

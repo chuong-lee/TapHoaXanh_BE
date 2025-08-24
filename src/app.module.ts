@@ -1,31 +1,34 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { ProductsModule } from './products/products.module';
+import { AddressModule } from './address/address.module';
+import { BrandModule } from './brand/brand.module';
 import { CategoriesModule } from './category/categories.module';
 import { DatabaseModule } from './database/database.module';
-import { ProductVariantModule } from './product-variant/product-variant.module';
-import { ProductImagesModule } from './product-images/product-images.module';
-import { BrandModule } from './brand/brand.module';
-import { UsersModule } from './users/users.module';
-import { AddressModule } from './address/address.module';
-import { VoucherModule } from './voucher/voucher.module';
 import { OrderModule } from './order/order.module';
-import { AuthModule } from './auth/auth.module';
+import { ProductImagesModule } from './product-images/product-images.module';
+import { ProductVariantModule } from './product-variant/product-variant.module';
+import { ProductsModule } from './products/products.module';
+import { UsersModule } from './users/users.module';
+import { VoucherModule } from './voucher/voucher.module';
+// import { PaymentModule } from './payment/payment.module';
+import { APP_GUARD } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
-import { OrderItemModule } from './order_item/order_item.module';
-import { RatingModule } from './rating/rating.module';
-import { WishlistModule } from './wishlist/wishlist.module';
+import { AuthModule } from './auth/auth.module';
+import { JwtGuard } from './auth/guards/jwt.guard';
 import { CartModule } from './cart/cart.module';
 import { CartItemModule } from './cart_item/cart_item.module';
 import { NewsModule } from './news/news.module';
-
+import { OrderItemModule } from './order_item/order_item.module';
+import { RatingModule } from './rating/rating.module';
+import { WishlistModule } from './wishlist/wishlist.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ cache: true, isGlobal: true }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'uploads'),
+      rootPath: join(process.cwd(), 'uploads'), // trỏ ra ngoài dist
       serveRoot: '/uploads',
     }),
     AuthModule,
@@ -45,9 +48,14 @@ import { NewsModule } from './news/news.module';
     CartModule,
     CartItemModule,
     NewsModule,
-
+    CloudinaryModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtGuard,
+    },
+  ],
 })
 export class AppModule {}

@@ -1,18 +1,23 @@
-import { AbstractEntity } from 'src/database/database.entity';
-import { Product } from 'src/products/entities/product.entity';
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { AbstractEntity } from '../../database/database.entity';
+import { OrderItem } from '../../order_item/entities/order_item.entity';
+import { Product } from '../../products/entities/product.entity';
+import { Column, Entity, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 
 @Entity('product_variant')
 export class ProductVariant extends AbstractEntity<ProductVariant> {
   @Column()
-  variant_name: string;
+  variant_name!: string;
 
   @Column()
-  price_modifier: number;
+  price_modifier!: number;
 
   @Column()
-  stock: number;
+  stock!: number;
 
   @ManyToOne(() => Product, (product) => product.variants)
-  product: Product;
+  @JoinColumn({ name: 'product_id' })
+  product!: Product;
+
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.productVariant)
+  orderItem!: OrderItem[];
 }

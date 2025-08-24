@@ -2,8 +2,9 @@ import { BadRequestException, Inject, Injectable, NotFoundException } from '@nes
 import { ICartItemService } from '../interfaces/icart_item-service.interface';
 import { CartItem } from '../entities/cart_item.entity';
 import { ICartItemRepository } from '../interfaces/icart_item-repository.interface';
-import { Cart } from 'src/cart/entities/cart.entity';
-import { ProductRepository } from 'src/products/products.repository';
+import { Cart } from '../../cart/entities/cart.entity';
+import { ProductRepository } from '../../products/products.repository';
+import { ProductVariantRepository } from 'src/product-variant/product-variant.repository';
 
 @Injectable()
 export class CartItemService implements ICartItemService {
@@ -12,6 +13,8 @@ export class CartItemService implements ICartItemService {
     private readonly _cartItemRepository: ICartItemRepository,
     @Inject(ProductRepository)
     private readonly _productRepository: ProductRepository,
+    @Inject(ProductRepository)
+    private readonly _productVariantRepository: ProductVariantRepository,
   ) {}
 
   async addOrUpdateCartItem(cart: Cart, productId: number, quantity: number): Promise<CartItem> {
@@ -22,14 +25,17 @@ export class CartItemService implements ICartItemService {
 
     // Validate product exists - bắt lỗi khi product không tồn tại
     const product = await this._productRepository.findOne(productId);
+
     if (!product) {
       throw new NotFoundException('Sản phẩm không tồn tại');
     }
+    const productVariant = await this._productVariantRepository.findOneByProductId(product.id);
+    if (!productVariant) throw new NotFoundException('Biến thể không tồn tại');
     const existingCartItem = await this._cartItemRepository.findByCartAndProduct(cart.id, productId);
     // Validate stock - bắt lỗi khi quantity không đủ
-    if (product.quantity < quantity) {
+    if (productVariant.stock < quantity) {
       throw new BadRequestException(
-        `Số lượng sản phẩm trong kho không đủ. Hiện có: ${product.quantity}, yêu cầu: ${quantity}`,
+        `Số lượng sản phẩm trong kho không đủ. Hiện có: ${productVariant.stock}, yêu cầu: ${quantity}`,
       );
     }
 
@@ -37,9 +43,9 @@ export class CartItemService implements ICartItemService {
       const newQuantity = existingCartItem.quantity + quantity;
 
       // Xác nhận tổng số lượng không vượt product có sẵn
-      if (newQuantity > product.quantity) {
+      if (newQuantity > productVariant.stock) {
         throw new BadRequestException(
-          `Tổng số lượng vượt quá số lượng trong kho. Hiện có: ${product.quantity}, yêu cầu: ${newQuantity}`,
+          `Tổng số lượng vượt quá số lượng trong kho. Hiện có: ${productVariant.stock}, yêu cầu: ${newQuantity}`,
         );
       }
 

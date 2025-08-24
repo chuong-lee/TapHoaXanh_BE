@@ -1,6 +1,6 @@
-import { Cart } from 'src/cart/entities/cart.entity';
-import { AbstractEntity } from 'src/database/database.entity';
-import { Product } from 'src/products/entities/product.entity';
+import { Cart } from '../../cart/entities/cart.entity';
+import { AbstractEntity } from '../../database/database.entity';
+import { Product } from '../../products/entities/product.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 @Entity('cart_item')
@@ -13,18 +13,19 @@ export class CartItem extends AbstractEntity<CartItem> {
     this.product = product;
   }
   @Column({ type: 'int', default: 1 })
-  quantity: number;
+  quantity!: number;
 
   @Column()
-  total_price: number;
+  total_price?: number;
 
   @Column()
-  price: number;
+  price!: number;
 
   @ManyToOne(() => Product, (product) => product.cartItems)
-  product: Product;
+  @JoinColumn({ name: 'product_id' })
+  product!: Product;
 
   @ManyToOne(() => Cart, (cart) => cart.cartItems)
-  @JoinColumn({ name: 'cartId' })
-  cart: Cart;
+  @JoinColumn({ name: 'cart_id' })
+  cart!: Cart;
 }

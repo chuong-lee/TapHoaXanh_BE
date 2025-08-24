@@ -4,11 +4,11 @@ import { PaymentStatus } from '../enums/payment-status.enum';
 export class ConfirmBankTransferDto {
   @IsNumber()
   @IsNotEmpty()
-  paymentId: number; // This is actually orderId now
+  paymentId?: number; // This is actually orderId now
 
   @IsString()
   @IsNotEmpty()
-  transactionId: string;
+  transactionId?: string;
 
   @IsString()
   @IsOptional()

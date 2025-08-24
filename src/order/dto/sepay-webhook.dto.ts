@@ -2,10 +2,10 @@ import { IsString, IsNumber, IsOptional, IsDateString } from 'class-validator';
 
 export class SePayWebhookDto {
   @IsString()
-  gateway: string;
+  gateway?: string;
 
   @IsDateString()
-  transaction_date: string;
+  transaction_date?: string;
 
   @IsString()
   @IsOptional()
@@ -16,13 +16,13 @@ export class SePayWebhookDto {
   sub_account?: string;
 
   @IsNumber()
-  amount_in: number;
+  amount_in?: number;
 
   @IsNumber()
-  amount_out: number;
+  amount_out?: number;
 
   @IsNumber()
-  accumulated: number;
+  accumulated?: number;
 
   @IsString()
   @IsOptional()
@@ -46,7 +46,7 @@ export class SePayWebhookDto {
 }
 
 export class SePayWebhookResponseDto {
-  status: string;
-  message: string;
+  status?: string;
+  message?: string;
   data?: any;
 }

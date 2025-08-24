@@ -1,9 +1,9 @@
-import { BaseRepository } from 'src/database/abstract.repository';
+import { BaseRepository } from '../database/abstract.repository';
 import { ProductImage } from './entities/product-image.entity';
 import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Product } from 'src/products/entities/product.entity';
+import { Product } from '../products/entities/product.entity';
 
 @Injectable()
 export class ProductImagesRepository extends BaseRepository<ProductImage> {
@@ -22,5 +22,21 @@ export class ProductImagesRepository extends BaseRepository<ProductImage> {
       .getRawMany();
 
     return products;
+  }
+
+  async findOneByProductId(id: number): Promise<ProductImage | null> {
+    return this.productImagesRepository.findOne({
+      where: { product: { id } },
+    });
+  }
+
+  async findAllByProductId(id: number): Promise<ProductImage[]> {
+    return this.productImagesRepository.find({
+      where: { product: { id } },
+    });
+  }
+
+  async deleteByProductId(id: number) {
+    return await this.productImagesRepository.delete({ product: { id } });
   }
 }

@@ -20,8 +20,7 @@ export class AuthRepository implements IAuthRepository {
       await this.tokenRepository.save(tokenData);
       return;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      throw new InternalServerErrorException('Error creating token', errorMessage);
+      throw new InternalServerErrorException('Error creating token', (error as any).message);
     }
   }
 

@@ -75,7 +75,8 @@ export class NewsService {
 
   async unlikeNews(id: number): Promise<News> {
     const news = await this.findOne(id);
-    if (news.likes > 0) {
+    if ((news.likes ?? 0) > 0) {
+      // dùng ?? để fallback về 0 nếu undefined
       await this.newsRepository.decrementLikes(id);
     }
     return this.findOne(id);

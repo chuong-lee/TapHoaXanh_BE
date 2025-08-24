@@ -1,78 +1,72 @@
-import { Brand } from 'src/brand/entities/brand.entity';
-import { CartItem } from 'src/cart_item/entities/cart_item.entity';
-import { Category } from 'src/category/entities/category.entity';
-import { AbstractEntity } from 'src/database/database.entity';
-import { OrderItem } from 'src/order_item/entities/order_item.entity';
-import { ProductImage } from 'src/product-images/entities/product-image.entity';
-import { ProductVariant } from 'src/product-variant/entities/product-variant.entity';
-import { Rating } from 'src/rating/entities/rating.entity';
-import { Wishlist } from 'src/wishlist/entities/wishlist.entity';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
-
-import { JoinColumn } from 'typeorm';
+import { Brand } from '../../brand/entities/brand.entity';
+import { CartItem } from '../../cart_item/entities/cart_item.entity';
+import { Category } from '../../category/entities/category.entity';
+import { AbstractEntity } from '../../database/database.entity';
+import { OrderItem } from '../../order_item/entities/order_item.entity';
+import { ProductImage } from '../../product-images/entities/product-image.entity';
+import { ProductVariant } from '../../product-variant/entities/product-variant.entity';
+import { Rating } from '../../rating/entities/rating.entity';
+import { Wishlist } from '../../wishlist/entities/wishlist.entity';
+import { Column, Entity, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 
 @Entity('product')
 export class Product extends AbstractEntity<Product> {
   @Column()
-  name: string;
+  name!: string;
 
   @Column()
-  price: number;
+  price!: number;
 
   @Column()
-  discount: number;
+  discount!: number;
 
   @Column()
-  images: string;
+  images!: string;
 
   @Column()
-  slug: string;
+  slug!: string;
 
   @Column({ unique: true })
-  barcode: string;
+  barcode!: string;
 
   @Column()
-  expiry_date: Date;
+  expiry_date!: Date;
 
   @Column()
-  origin: string;
+  origin!: string;
 
   @Column()
-  weight_unit: string;
+  weight_unit!: string;
 
   @Column({ nullable: true })
-  description: string;
-
-  @Column()
-  quantity: number;
+  description?: string;
 
   @Column({ default: 0 })
-  purchase: number;
+  purchase!: number;
 
-  // Sửa tên cột để khớp với database
   @ManyToOne(() => Category, (category) => category.product)
   @JoinColumn({ name: 'category_id' })
-  category: Category;
-
-    @ManyToOne(() => Brand, (brand) => brand.products)
-  @JoinColumn({ name: 'brand_id' })
-  brand: Brand;
+  category!: Category;
 
   @OneToMany(() => ProductVariant, (variant) => variant.product)
-  variants: ProductVariant[];
+  variants!: ProductVariant[];
 
   @OneToMany(() => ProductImage, (image) => image.product)
-  image: ProductImage;
+  image!: ProductImage;
+
+  @ManyToOne(() => Brand, (brand) => brand.product)
+  @JoinColumn({ name: 'brand_id' })
+  brand!: Brand;
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
-  orderItem: OrderItem[];
+  orderItem!: OrderItem[];
 
   @OneToMany(() => Rating, (rating) => rating.product)
-  rating: Rating[];
+  rating!: Rating[];
 
   @OneToMany(() => Wishlist, (wishlist) => wishlist.product)
-  wishlist: Wishlist[];
+  wishlist!: Wishlist[];
 
   @OneToMany(() => CartItem, (item) => item.cart)
-  cartItems: CartItem[];
+  cartItems!: CartItem[];
 }

@@ -7,10 +7,16 @@ import { UpdateUserDto } from '../dto/update-user.dto';
 import { UpdatePasswordDto } from '../dto/updatePassword-user.dto';
 import { plainToInstance } from 'class-transformer';
 import { ProfileDto } from '../dto/profile-user.dto';
+import { FilterUserDto } from '../dto/filter-user.dto';
+import { PaginationResult } from '../../interface/IPagination';
+import { ICloudinaryService } from '../../cloudinary/interfaces/icloudinary-service.interface';
 
 @Injectable()
 export class UsersService implements IUsersService {
-  constructor(private readonly _usersRepository: IUsersRepository) {}
+  constructor(
+    private readonly _usersRepository: IUsersRepository,
+    private readonly cloudinaryService: ICloudinaryService,
+  ) {}
 
   // async createUser(registerDto: RegisterAuthDto): Promise<Users> {
   //   const existing = await this._usersRepository.findByEmail(registerDto.email);
@@ -60,5 +66,34 @@ export class UsersService implements IUsersService {
     const user = await this._usersRepository.findById(id);
     if (!user) throw new NotFoundException('Người dùng không tồn tại');
     return plainToInstance(ProfileDto, user);
+  }
+
+  async filterAllUser(userDto: FilterUserDto): Promise<PaginationResult<Users>> {
+    return await this._usersRepository.filterUser(userDto);
+  }
+
+  async updateAvatar(userId: number, file: Express.Multer.File): Promise<Users | null> {
+    // Kiểm tra user có tồn tại không
+    const user = await this.findById(userId);
+    if (!user) {
+      throw new NotFoundException('Người dùng không tồn tại');
+    }
+
+    try {
+      // Upload file lên Cloudinary
+      const cloudinaryResult = await this.cloudinaryService.uploadFile(file, {
+        fileType: 'avatar',
+      });
+
+      // Cập nhật URL avatar mới vào database sử dụng repository method
+      const updatedUser = await this._usersRepository.updateAvatar(userId, cloudinaryResult.secure_url);
+
+      return updatedUser;
+    } catch (error) {
+      throw new BadRequestException(`Lỗi upload avatar: ${(error as Error).message}`);
+    }
+  }
+  async countNumberOfUser(): Promise<number> {
+    return await this._usersRepository.countNumberOfUser();
   }
 }

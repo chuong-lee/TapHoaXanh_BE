@@ -1,12 +1,12 @@
-import { AbstractEntity } from 'src/database/database.entity';
 import { Users } from 'src/users/entities/users.entity';
+import { AbstractEntity } from '../../database/database.entity';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { Category } from 'src/category/entities/category.entity';
-import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
 
 @Entity('news')
 export class News extends AbstractEntity<News> {
   @Column('varchar', { length: 255 })
-  name: string;
+  name?: string;
 
   @Column('text', { nullable: true })
   summary?: string;
@@ -15,16 +15,16 @@ export class News extends AbstractEntity<News> {
   images?: string;
 
   @Column('text')
-  description: string;
+  description?: string;
 
   @Column('int', { default: 0 })
-  views: number;
+  views?: number;
 
   @Column('int', { default: 0 })
-  likes: number;
+  likes?: number;
 
   @Column('int', { default: 0 })
-  comments_count: number;
+  comments_count?: number;
 
   @Column('int', { nullable: true })
   author_id?: number;

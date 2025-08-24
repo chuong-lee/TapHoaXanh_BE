@@ -3,23 +3,23 @@ import { News } from '../entities/news.entity';
 
 export class PaginatedNewsDto {
   @ApiProperty({ description: 'Danh sách bài viết', type: [News] })
-  data: News[];
+  data?: News[];
 
   @ApiProperty({ description: 'Tổng số bài viết', example: 100 })
-  total: number;
+  total?: number;
 
   @ApiProperty({ description: 'Trang hiện tại', example: 1 })
-  page: number;
+  page?: number;
 
   @ApiProperty({ description: 'Số lượng bài viết trên mỗi trang', example: 10 })
-  limit: number;
+  limit?: number;
 
   @ApiProperty({ description: 'Tổng số trang', example: 10 })
-  totalPages: number;
+  totalPages?: number;
 
   @ApiProperty({ description: 'Có trang sau hay không', example: true })
-  hasNext: boolean;
+  hasNext?: boolean;
 
   @ApiProperty({ description: 'Có trang trước hay không', example: false })
-  hasPrev: boolean;
+  hasPrev?: boolean;
 }

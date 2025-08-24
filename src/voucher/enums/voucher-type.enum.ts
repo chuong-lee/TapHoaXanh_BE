@@ -1,4 +1,4 @@
 export enum VoucherType {
-  DISCOUNT = 'discount',
-  FREESHIP = 'freeship',
+  PERCENTAGE = 'PERCENTAGE',
+  NORMAL = 'NORMAL',
 }

@@ -1,6 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { IAuthService } from '../interfaces/iauth-service.interface';
-import { TUserRole } from 'src/types/common.enum';
+import { TUserRole } from '../../types/common.enum';
 
 @Injectable()
 export class IsAdminGuard implements CanActivate {
