@@ -18,7 +18,7 @@ export class VoucherRepository extends BaseRepository<Voucher> {
     const qb = this.voucherRepository.createQueryBuilder('voucher');
 
     if (search) {
-      qb.andWhere(`(LOWER(voucher.code) LIKE LOWER(:search)`, { search: `%${search}%` });
+      qb.andWhere(`LOWER(voucher.code) LIKE LOWER(:search)`, { search: `%${search}%` });
     }
 
     if (start_date) {

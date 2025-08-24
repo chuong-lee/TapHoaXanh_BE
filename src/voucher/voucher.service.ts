@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { OrderRepository } from 'src/order/order.repository';
 import { CreateVoucherDto } from './dto/create-voucher.dto';
 import { UpdateVoucherDto } from './dto/update-voucher.dto';
@@ -33,11 +33,25 @@ export class VoucherService {
     return await this.voucherRepository.findById(id);
   }
 
-  update(id: number, _updateVoucherDto: UpdateVoucherDto) {
-    return `This action updates a #${id} voucher`;
+  async update(id: number, updateVoucherDto: UpdateVoucherDto) {
+    const voucher = await this.findOne(id);
+    if (!voucher) throw new NotFoundException('Voucher không tồn tại');
+    if (updateVoucherDto.code) {
+      const idProduct = await this.voucherRepository.findOneByField('code', updateVoucherDto.code);
+      if (idProduct && idProduct.id !== id) throw new BadRequestException('Mã code này đã được sử dụng');
+    }
+    const updateVoucher = this.voucherRepository.create({ ...voucher, ...updateVoucherDto });
+    await this.voucherRepository.save(updateVoucher);
+
+    return {
+      message: 'Cập nhật thành công',
+      data_update: updateVoucher,
+    };
   }
 
   remove(id: number) {
-    return `This action removes a #${id} voucher`;
+    const voucher = this.findOne(id);
+    if (!voucher) throw new NotFoundException('Voucher không tồn tại');
+    return this.voucherRepository.delete(id);
   }
 }
