@@ -11,6 +11,9 @@ export class Category extends AbstractEntity<Category> {
   slug!: string;
 
   @Column()
+  image_url!: string;
+
+  @Column()
   parent_id!: number;
 
   @OneToMany(() => Product, (product) => product.category)
