@@ -1,5 +1,5 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { ICloudinaryService } from 'src/cloudinary/interfaces/icloudinary-service.interface';
+import { ICloudinaryService } from '../cloudinary/interfaces/icloudinary-service.interface';
 import { ProductRepository } from '../products/products.repository';
 import { CreateProductImageDto } from './dto/create-product-image.dto';
 import { UpdateProductImageDto } from './dto/update-product-image.dto';

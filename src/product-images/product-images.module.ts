@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 import { ProductsModule } from '../products/products.module';
 import { ProductImage } from './entities/product-image.entity';
 import { ProductImagesRepository } from './prduct-images.repository';

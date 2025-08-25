@@ -6,7 +6,7 @@ import { Product } from './entities/product.entity';
 import { CategoriesModule } from '../category/categories.module';
 import { BrandModule } from '../brand/brand.module';
 import { ProductRepository } from './products.repository';
-import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Product]), CategoriesModule, BrandModule, CloudinaryModule],

@@ -1,4 +1,4 @@
-import { ProductVariant } from 'src/product-variant/entities/product-variant.entity';
+import { ProductVariant } from '../../product-variant/entities/product-variant.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { Cart } from '../../cart/entities/cart.entity';
 import { AbstractEntity } from '../../database/database.entity';

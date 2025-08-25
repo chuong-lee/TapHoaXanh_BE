@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { ICloudinaryService } from 'src/cloudinary/interfaces/icloudinary-service.interface';
+import { ICloudinaryService } from '../cloudinary/interfaces/icloudinary-service.interface';
 import { BrandRepository } from '../brand/brand.repsitory';
 import { CategoryRepository } from '../category/categories.reposirory';
 import { CreateProductDto } from './dto/create-product.dto';

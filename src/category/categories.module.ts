@@ -4,7 +4,7 @@ import { CategoriesController } from './categories.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Category } from './entities/category.entity';
 import { CategoryRepository } from './categories.reposirory';
-import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Category]), CloudinaryModule],

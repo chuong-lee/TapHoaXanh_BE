@@ -3,7 +3,7 @@ import { CategoryRepository } from './categories.reposirory';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { FilterCategoryDto } from './dto/filter-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { ICloudinaryService } from 'src/cloudinary/interfaces/icloudinary-service.interface';
+import { ICloudinaryService } from '../cloudinary/interfaces/icloudinary-service.interface';
 
 @Injectable()
 export class CategoriesService {
