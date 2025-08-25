@@ -6,9 +6,10 @@ import { Product } from './entities/product.entity';
 import { CategoriesModule } from '../category/categories.module';
 import { BrandModule } from '../brand/brand.module';
 import { ProductRepository } from './products.repository';
+import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Product]), CategoriesModule, BrandModule],
+  imports: [TypeOrmModule.forFeature([Product]), CategoriesModule, BrandModule, CloudinaryModule],
   controllers: [ProductsController],
   providers: [ProductsService, ProductRepository],
   exports: [ProductsService, ProductRepository],

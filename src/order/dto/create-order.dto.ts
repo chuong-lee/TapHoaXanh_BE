@@ -1,6 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
-import { PaymentMethod } from '../enums/payment-method.enum';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateOrderDto {
   @ApiProperty({ example: 500000, description: 'Tổng giá đơn hàng' })
@@ -22,11 +21,6 @@ export class CreateOrderDto {
   @IsString()
   @IsNotEmpty()
   status?: string;
-
-  @ApiPropertyOptional({ enum: PaymentMethod, example: PaymentMethod.MOMO, description: 'Phương thức thanh toán' })
-  @IsEnum(PaymentMethod)
-  @IsOptional()
-  payment?: PaymentMethod;
 
   @ApiProperty({ example: 1, description: 'ID của user đặt hàng' })
   @IsNumber()
