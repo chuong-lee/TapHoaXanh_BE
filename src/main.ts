@@ -3,15 +3,18 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { config } from 'dotenv';
 import { ValidationPipe } from '@nestjs/common';
+import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 config();
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter());
+
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
     }),
   );
+
   app.setGlobalPrefix('api');
   app.enableCors({
     origin: ['https://taphoaxanh-admin.vercel.app'],
