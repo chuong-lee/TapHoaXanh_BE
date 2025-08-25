@@ -14,7 +14,7 @@ async function bootstrap() {
   );
   app.setGlobalPrefix('api');
   app.enableCors({
-    origin: ['http://localhost:3000', 'https://taphoaxanh.vercel.app', 'https://taphoaxanh-admin.vercel.app'],
+    origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Origin', 'X-Requested-With', 'Accept', 'Authorization', 'X-Custom-Header'],
     exposedHeaders: ['Authorization'],
