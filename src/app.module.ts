@@ -26,7 +26,11 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ cache: true, isGlobal: true }),
+    ConfigModule.forRoot({ 
+      cache: true, 
+      isGlobal: true,
+      envFilePath: '.env'
+    }),
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'uploads'), // trỏ ra ngoài dist
       serveRoot: '/uploads',
