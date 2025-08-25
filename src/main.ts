@@ -14,10 +14,10 @@ async function bootstrap() {
   );
   app.setGlobalPrefix('api');
   app.enableCors({
-    cors: true,
     origin: ['http://localhost:3000', 'https://taphoaxanh.vercel.app', 'https://taphoaxanh-admin.vercel.app'],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders: 'Content-Type, Accept, Authorization',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Origin', 'X-Requested-With', 'Accept', 'Authorization', 'X-Custom-Header'],
+    exposedHeaders: ['Authorization'],
     credentials: true,
   });
   const config = new DocumentBuilder()
