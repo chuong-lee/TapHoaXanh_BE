@@ -13,8 +13,8 @@ export class CartItemRepository implements ICartItemRepository {
   ) {}
   async findByCartAndProduct(cartId: number, productId: number): Promise<CartItem | null> {
     return this._cartItemRepository.findOne({
-      where: { cart: { id: cartId }, product: { id: productId } },
-      relations: ['cart', 'product'],
+      where: { cart: { id: cartId }, product_variant: { id: productId } },
+      relations: ['cart', 'product_variant'],
     });
   }
   async save(cartItem: CartItem): Promise<CartItem> {
@@ -27,12 +27,12 @@ export class CartItemRepository implements ICartItemRepository {
   async findOne(id: number): Promise<CartItem | null> {
     return this._cartItemRepository.findOne({
       where: { id },
-      relations: ['cart', 'product'],
+      relations: ['cart', 'product_variant'],
     });
   }
   async findAll(): Promise<CartItem[]> {
     return this._cartItemRepository.find({
-      relations: ['cart', 'product'],
+      relations: ['cart', 'product_variant'],
     });
   }
   async resetAutoIncrement(): Promise<void> {

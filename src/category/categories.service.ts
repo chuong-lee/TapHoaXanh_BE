@@ -1,15 +1,20 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CategoryRepository } from './categories.reposirory';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { FilterCategoryDto } from './dto/filter-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { ICloudinaryService } from 'src/cloudinary/interfaces/icloudinary-service.interface';
 
 @Injectable()
 export class CategoriesService {
-  constructor(private readonly categoryRepository: CategoryRepository) {}
+  constructor(
+    private readonly categoryRepository: CategoryRepository,
+    private readonly cloudinaryService: ICloudinaryService,
+  ) {}
 
-  async create(createCategoryDto: CreateCategoryDto) {
+  async create(createCategoryDto: CreateCategoryDto, image: Express.Multer.File) {
     // Kiểm tra category đã tồn tại (giả sử kiểm tra theo tên)
+    const category = this.categoryRepository.create(createCategoryDto);
     const existCategory = await this.categoryRepository.findByName(createCategoryDto.name);
     if (existCategory) {
       throw new BadRequestException('Tên danh mục đã tồn tại');
@@ -17,9 +22,16 @@ export class CategoriesService {
     if (!createCategoryDto.parent_id) {
       createCategoryDto.parent_id = 0;
     }
-    const category = this.categoryRepository.create(createCategoryDto);
-    const saveCategory = await this.categoryRepository.save(category);
-    return saveCategory;
+
+    const cloudinaryResult = await this.cloudinaryService.uploadFile(image, {
+      fileType: `category`,
+    });
+
+    if (!cloudinaryResult) {
+      throw new InternalServerErrorException('Upload ảnh thất bại');
+    }
+    category.image_url = cloudinaryResult.secure_url;
+    return await this.categoryRepository.save(category);
   }
 
   async findAll() {
@@ -36,7 +48,7 @@ export class CategoriesService {
     return category;
   }
 
-  async update(id: number, updateCategoryDto: UpdateCategoryDto) {
+  async update(id: number, updateCategoryDto: UpdateCategoryDto, file?: Express.Multer.File) {
     // Kiểm tra danh mục tồn tại
     const existCategory = await this.categoryRepository.findById(id);
     if (!existCategory) throw new NotFoundException('Danh mục không tồn tại');
@@ -49,6 +61,13 @@ export class CategoriesService {
       }
     }
 
+    if (file) {
+      if (existCategory.image_url) this.cloudinaryService.deleteFile(existCategory.image_url);
+      const uploaded = await this.cloudinaryService.uploadFile(file, {
+        fileType: 'category',
+      });
+      existCategory.image_url = uploaded.secure_url;
+    }
     // Cập nhật
     const updateCategory = this.categoryRepository.create({
       ...existCategory,
@@ -67,6 +86,7 @@ export class CategoriesService {
     // kiểm tra tồn tại trước khi xóa
     const existCategory = await this.categoryRepository.findById(id);
     if (!existCategory) throw new NotFoundException('Danh mục không tồn tại');
+    this.cloudinaryService.deleteFile(existCategory.image_url);
     await this.categoryRepository.deleteCategoryWithParentId({ parent_id: id });
     await this.categoryRepository.delete(id);
     return { message: 'Xóa thành công' };

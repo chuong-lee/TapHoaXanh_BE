@@ -4,7 +4,7 @@ import { IsNumber, Min } from 'class-validator';
 
 export class CreateCartDto {
   @IsNumber()
-  @ApiProperty({ description: 'ID của sản phẩm' })
+  @ApiProperty({ description: 'ID của sản phẩm biến thể' })
   productId!: number;
 
   @IsNumber()
