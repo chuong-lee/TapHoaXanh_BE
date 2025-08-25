@@ -1,4 +1,4 @@
-import { CartItem } from 'src/cart_item/entities/cart_item.entity';
+import { CartItem } from '../../cart_item/entities/cart_item.entity';
 import { AbstractEntity } from '../../database/database.entity';
 import { OrderItem } from '../../order_item/entities/order_item.entity';
 import { Product } from '../../products/entities/product.entity';

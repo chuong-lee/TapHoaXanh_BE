@@ -4,7 +4,7 @@ import { CreateProductVariantDto } from './dto/create-product-variant.dto';
 import { UpdateProductVariantDto } from './dto/update-product-variant.dto';
 import { ProductVariantRepository } from './product-variant.repository';
 import { FilterProductVariantDto } from './dto/filter-product-variant.dto';
-import { ICloudinaryService } from 'src/cloudinary/interfaces/icloudinary-service.interface';
+import { ICloudinaryService } from '../cloudinary/interfaces/icloudinary-service.interface';
 
 @Injectable()
 export class ProductVariantService {

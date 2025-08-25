@@ -3,7 +3,7 @@ import { v2 as cloudinary } from 'cloudinary';
 import { CloudinaryResponse } from '../cloudinary-response';
 import { ICloudinaryRepository } from '../interfaces/icloudinary-repository.interface';
 import * as streamifier from 'streamifier';
-import { extractPublicId } from 'src/utils/extract.file';
+import { extractPublicId } from '../../utils/extract.file';
 
 @Injectable()
 export class CloudinaryRepository implements ICloudinaryRepository {

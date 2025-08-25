@@ -1,4 +1,4 @@
-import { BaseRepository } from 'src/database/abstract.repository';
+import { BaseRepository } from '../database/abstract.repository';
 import { Payment } from './entities/payment.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';

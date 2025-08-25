@@ -1,5 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { BaseRepository } from 'src/database/abstract.repository';
+import { BaseRepository } from '../database/abstract.repository';
 import { Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
 import { FilterOrderDto } from './dto/filter-order.dto';
