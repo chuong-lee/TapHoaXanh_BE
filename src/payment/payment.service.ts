@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { OrderRepository } from 'src/order/order.repository';
+import { OrderRepository } from '../order/order.repository';
 import { IpnFailChecksum, IpnInvalidAmount, IpnOrderNotFound, IpnSuccess, ProductCode, VNPay, VnpLocale } from 'vnpay';
 import { CreatePaymentDto } from './dto/payment.dto';
 import { PaymentRepository } from './payment.repository';

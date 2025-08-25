@@ -1,4 +1,4 @@
-import { Payment } from 'src/payment/entities/payment.entity';
+import { Payment } from '../../payment/entities/payment.entity';
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { AbstractEntity } from '../../database/database.entity';
 import { OrderItem } from '../../order_item/entities/order_item.entity';

@@ -1,5 +1,5 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { IUsersRepository } from 'src/users/interfaces/iusers-repository.interface';
+import { IUsersRepository } from '../users/interfaces/iusers-repository.interface';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { FilterOrderDto } from './dto/filter-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';

@@ -15,6 +15,6 @@ export default new DataSource({
   entities: [isCompiled ? 'dist/**/*.entity.js' : 'src/**/*.entity.ts'],
   migrations: [isCompiled ? 'dist/src/migrations/*.js' : 'src/migrations/*.ts'],
   migrationsRun: false,
-//   synchronize: configService.get('MYSQL_SYNCHRONIZE') === 'true',
+  //   synchronize: configService.get('MYSQL_SYNCHRONIZE') === 'true',
   logging: false,
 });

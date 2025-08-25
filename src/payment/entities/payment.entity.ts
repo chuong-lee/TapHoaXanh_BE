@@ -1,5 +1,5 @@
-import { AbstractEntity } from 'src/database/database.entity';
-import { Order } from 'src/order/entities/order.entity';
+import { AbstractEntity } from '../../database/database.entity';
+import { Order } from '../../order/entities/order.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 @Entity('payments')

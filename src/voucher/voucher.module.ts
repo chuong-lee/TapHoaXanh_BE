@@ -3,7 +3,7 @@ import { VoucherService } from './voucher.service';
 import { VoucherController } from './voucher.controller';
 import { Voucher } from './entities/voucher.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { OrderModule } from 'src/order/order.module';
+import { OrderModule } from '../order/order.module';
 import { VoucherRepository } from './voucher.repository';
 
 @Module({

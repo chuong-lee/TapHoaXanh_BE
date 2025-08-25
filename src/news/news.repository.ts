@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { News } from './entities/news.entity';
-import { BaseRepository } from 'src/database/abstract.repository';
+import { BaseRepository } from '../database/abstract.repository';
 import { QueryNewsDto } from './dto/query-news.dto';
 import { PaginatedNewsDto } from './dto/paginated-news.dto';
 

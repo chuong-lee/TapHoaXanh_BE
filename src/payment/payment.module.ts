@@ -4,7 +4,7 @@ import { Module } from '@nestjs/common';
 import { PaymentController } from './payment.controller';
 import { PaymentService } from './payment.service';
 import { PaymentRepository } from './payment.repository';
-import { OrderModule } from 'src/order/order.module';
+import { OrderModule } from '../order/order.module';
 import { HashAlgorithm, VNPay } from 'vnpay';
 
 @Module({
