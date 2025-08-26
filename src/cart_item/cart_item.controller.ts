@@ -1,6 +1,6 @@
 import { Controller, Delete, Get, Param, UseGuards } from '@nestjs/common';
 import { ICartItemService } from './interfaces/icart_item-service.interface';
-import { JwtGuard } from 'src/auth/guards/jwt.guard';
+import { JwtGuard } from '../auth/guards/jwt.guard';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 
 @Controller('cart-item')

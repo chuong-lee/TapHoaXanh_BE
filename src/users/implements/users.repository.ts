@@ -5,7 +5,7 @@ import { IUsersRepository } from '../interfaces/iusers-repository.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FilterUserDto } from '../dto/filter-user.dto';
 import { PaginationResult } from '../../interface/IPagination';
-import { TUserRole } from 'src/types/common.enum';
+import { TUserRole } from '../../types/common.enum';
 
 @Injectable()
 export class UsersRepository implements IUsersRepository {
