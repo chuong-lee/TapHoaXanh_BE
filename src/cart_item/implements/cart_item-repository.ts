@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ICartItemRepository } from '../interfaces/icart_item-repository.interface';
 import { CartItem } from '../entities/cart_item.entity';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Repository, In } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
@@ -13,8 +13,8 @@ export class CartItemRepository implements ICartItemRepository {
   ) {}
   async findByCartAndProduct(cartId: number, productId: number): Promise<CartItem | null> {
     return this._cartItemRepository.findOne({
-      where: { cart: { id: cartId }, product: { id: productId } },
-      relations: ['cart', 'product'],
+      where: { cart: { id: cartId }, product_variant: { id: productId } },
+      relations: ['cart', 'product_variant'],
     });
   }
   async save(cartItem: CartItem): Promise<CartItem> {
@@ -27,14 +27,32 @@ export class CartItemRepository implements ICartItemRepository {
   async findOne(id: number): Promise<CartItem | null> {
     return this._cartItemRepository.findOne({
       where: { id },
-      relations: ['cart', 'product'],
+      relations: ['cart', 'product_variant'],
     });
   }
   async findAll(): Promise<CartItem[]> {
     return this._cartItemRepository.find({
-      relations: ['cart', 'product'],
+      relations: ['cart', 'product_variant'],
     });
   }
+
+  async findByIds(ids: number[], userId: number): Promise<CartItem[]> {
+    // Lấy cart items theo IDs và đảm bảo thuộc về user
+    const items = await this._cartItemRepository.find({
+      where: { id: In(ids) },
+      relations: ['cart', 'product_variant', 'cart.user'],
+    });
+    return items.filter((item) => item.cart.user.id === userId);
+  }
+
+  async removeByIds(ids: number[], userId: number): Promise<void> {
+    // Xóa nhiều cart items theo IDs và đảm bảo thuộc về user
+    const items = await this.findByIds(ids, userId);
+    for (const item of items) {
+      await this.remove(item);
+    }
+  }
+
   async resetAutoIncrement(): Promise<void> {
     await this.dataSource.query('ALTER TABLE cart_item AUTO_INCREMENT = 1');
   }

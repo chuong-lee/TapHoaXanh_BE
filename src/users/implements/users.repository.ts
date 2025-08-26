@@ -5,6 +5,7 @@ import { IUsersRepository } from '../interfaces/iusers-repository.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FilterUserDto } from '../dto/filter-user.dto';
 import { PaginationResult } from '../../interface/IPagination';
+import { TUserRole } from '../../types/common.enum';
 
 @Injectable()
 export class UsersRepository implements IUsersRepository {
@@ -66,5 +67,16 @@ export class UsersRepository implements IUsersRepository {
         lastPage: Math.ceil(total / limit),
       },
     };
+  }
+
+  async updateAvatar(id: number, imageUrl: string): Promise<Users | null> {
+    await this.usersRepository.update({ id }, { image: imageUrl });
+    return await this.findById(id);
+  }
+  async countNumberOfUser(): Promise<number> {
+    const total = await this.usersRepository.count({
+      where: { role: TUserRole.USER },
+    });
+    return total;
   }
 }
