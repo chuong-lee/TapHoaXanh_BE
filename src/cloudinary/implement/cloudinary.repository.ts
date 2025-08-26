@@ -3,6 +3,7 @@ import { v2 as cloudinary } from 'cloudinary';
 import { CloudinaryResponse } from '../cloudinary-response';
 import { ICloudinaryRepository } from '../interfaces/icloudinary-repository.interface';
 import * as streamifier from 'streamifier';
+import { extractPublicId } from '../../utils/extract.file';
 
 @Injectable()
 export class CloudinaryRepository implements ICloudinaryRepository {
@@ -67,8 +68,9 @@ export class CloudinaryRepository implements ICloudinaryRepository {
     });
   }
 
-  async deleteFromCloudinary(publicId: string): Promise<any> {
+  async deleteFromCloudinary(url: string): Promise<any> {
     try {
+      const publicId = extractPublicId(url);
       return await cloudinary.uploader.destroy(publicId);
     } catch (error) {
       throw new Error(`Lỗi xóa file: ${(error as Error).message}`);

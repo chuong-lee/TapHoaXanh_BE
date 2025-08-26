@@ -18,5 +18,6 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": true,
     "strict": true,
+    "esModuleInterop": true
   }
 }

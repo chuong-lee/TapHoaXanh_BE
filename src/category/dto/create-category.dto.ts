@@ -10,6 +10,9 @@ export class CreateCategoryDto {
   @IsNotEmpty({ message: 'Slug không được để trống' })
   slug?: string;
 
+  @ApiProperty({ example: 'linkImage' })
+  image_url!: string;
+
   @ApiProperty({ example: 1 })
   parent_id!: number;
 }

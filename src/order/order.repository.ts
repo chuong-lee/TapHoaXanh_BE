@@ -107,4 +107,8 @@ export class OrderRepository extends BaseRepository<Order> {
     if (!order) throw new NotFoundException(`Order with id ${id} not found`);
     return this.orderRepository.save(order);
   }
+
+  async findByOrderCode(orderCode: string): Promise<Order | null> {
+    return await this.orderRepository.findOneBy({ order_code: orderCode });
+  }
 }

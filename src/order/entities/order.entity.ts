@@ -1,9 +1,9 @@
+import { Payment } from '../../payment/entities/payment.entity';
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { AbstractEntity } from '../../database/database.entity';
 import { OrderItem } from '../../order_item/entities/order_item.entity';
 import { Users } from '../../users/entities/users.entity';
 import { Voucher } from '../../voucher/entities/voucher.entity';
-import { PaymentMethod } from '../enums/payment-method.enum';
 
 @Entity('order')
 export class Order extends AbstractEntity<Order> {
@@ -13,14 +13,11 @@ export class Order extends AbstractEntity<Order> {
   @Column()
   note?: string;
 
-  @Column()
+  @Column({ unique: true })
   order_code!: string;
 
   @Column()
   status!: string;
-
-  @Column({ type: 'enum', enum: PaymentMethod })
-  payment?: PaymentMethod;
 
   @ManyToOne(() => Users, (user) => user.order)
   user!: Users;
@@ -30,4 +27,7 @@ export class Order extends AbstractEntity<Order> {
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
   orderItem!: OrderItem[];
+
+  @OneToMany(() => Payment, (payment) => payment.order)
+  payments!: Payment[];
 }
