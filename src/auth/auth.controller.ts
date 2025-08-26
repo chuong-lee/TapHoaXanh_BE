@@ -1,18 +1,16 @@
-import { Controller, Post, Body, Req, UseGuards } from '@nestjs/common';
-import { RegisterAuthDto } from './dto/register.dto';
-import { LoginAuthDto } from './dto/login.dto';
-import { ForgotPasswordAuthDto } from './dto/forgot-password.dto';
-import { IAuthService } from './interfaces/iauth-service.interface';
+import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation } from '@nestjs/swagger';
+import { ForgotPasswordAuthDto } from './dto/forgot-password.dto';
+import { LoginAuthDto } from './dto/login.dto';
+import { RegisterAuthDto } from './dto/register.dto';
 import { JwtGuard } from './guards/jwt.guard';
-import { Public } from '../../public.decorator';
+import { IAuthService } from './interfaces/iauth-service.interface';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: IAuthService) {}
 
   @Post('register')
-  @Public()
   async register(@Body() dto: RegisterAuthDto) {
     return this.authService.register(dto);
   }
@@ -20,7 +18,6 @@ export class AuthController {
   @ApiOperation({
     summary: 'Đăng nhập',
   })
-  @Public()
   @Post('login')
   async login(@Body() dto: LoginAuthDto) {
     return this.authService.login(dto.email, dto.password);
