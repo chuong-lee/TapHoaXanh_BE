@@ -14,6 +14,9 @@ export class Address extends AbstractEntity<Address> {
   district?: string;
 
   @Column()
+  ward?: string;
+
+  @Column()
   is_default?: boolean;
 
   @ManyToOne(() => Users, (users) => users.address)
