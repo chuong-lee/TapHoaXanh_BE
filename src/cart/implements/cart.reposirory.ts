@@ -15,7 +15,7 @@ export class CartRepository implements ICartRepository {
   async findCartByUserId(userId: number): Promise<Cart | null> {
     const a = await this.cartRepository.findOne({
       where: { user: { id: userId } },
-      relations: ['cartItems', 'cartItems.product'],
+      relations: ['cartItems', 'cartItems.product_variant'],
     });
     return a;
   }

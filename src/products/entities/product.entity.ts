@@ -1,13 +1,11 @@
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { Brand } from '../../brand/entities/brand.entity';
-import { CartItem } from '../../cart_item/entities/cart_item.entity';
 import { Category } from '../../category/entities/category.entity';
 import { AbstractEntity } from '../../database/database.entity';
-import { OrderItem } from '../../order_item/entities/order_item.entity';
 import { ProductImage } from '../../product-images/entities/product-image.entity';
 import { ProductVariant } from '../../product-variant/entities/product-variant.entity';
 import { Rating } from '../../rating/entities/rating.entity';
 import { Wishlist } from '../../wishlist/entities/wishlist.entity';
-import { Column, Entity, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 
 @Entity('product')
 export class Product extends AbstractEntity<Product> {
@@ -58,15 +56,9 @@ export class Product extends AbstractEntity<Product> {
   @JoinColumn({ name: 'brand_id' })
   brand!: Brand;
 
-  @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
-  orderItem!: OrderItem[];
-
   @OneToMany(() => Rating, (rating) => rating.product)
   rating!: Rating[];
 
   @OneToMany(() => Wishlist, (wishlist) => wishlist.product)
   wishlist!: Wishlist[];
-
-  @OneToMany(() => CartItem, (item) => item.cart)
-  cartItems!: CartItem[];
 }

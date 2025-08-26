@@ -1,16 +1,32 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  UseInterceptors,
+  UploadedFile,
+} from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { FilterCategoryDto } from './dto/filter-category.dto';
+import { ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('categories')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Post()
-  create(@Body() createCategoryDto: CreateCategoryDto) {
-    return this.categoriesService.create(createCategoryDto);
+  @ApiConsumes('multipart/form-data') // Cho phép swagger gửi form-data
+  @ApiBody({ type: CreateCategoryDto })
+  @UseInterceptors(FileInterceptor('image_url')) // 'image' là tên field trong form-data
+  create(@Body() createCategoryDto: CreateCategoryDto, @UploadedFile() file: Express.Multer.File) {
+    return this.categoriesService.create(createCategoryDto, file);
   }
 
   @Get()
@@ -34,8 +50,14 @@ export class CategoriesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
-    return this.categoriesService.update(+id, updateCategoryDto);
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('image_url')) // 'images' là tên field file trong form-data
+  update(
+    @Param('id') id: number,
+    @Body() updateCategoryDto: UpdateCategoryDto,
+    @UploadedFile() file?: Express.Multer.File, // ? vì file có thể không gửi
+  ) {
+    return this.categoriesService.update(+id, updateCategoryDto, file);
   }
 
   @Delete(':id')

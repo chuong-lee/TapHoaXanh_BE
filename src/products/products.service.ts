@@ -1,44 +1,19 @@
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { ICloudinaryService } from '../cloudinary/interfaces/icloudinary-service.interface';
 import { BrandRepository } from '../brand/brand.repsitory';
 import { CategoryRepository } from '../category/categories.reposirory';
 import { CreateProductDto } from './dto/create-product.dto';
+import { ProductFilterDto } from './dto/Filter-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductRepository } from './products.repository';
-import { ProductFilterDto } from './dto/Filter-product.dto';
-import * as fs from 'fs';
-import * as util from 'util';
-import { join } from 'path';
-import { deleteFileIfExists } from '../utils/deleteImages';
-const writeFile = util.promisify(fs.writeFile);
 @Injectable()
 export class ProductsService {
   constructor(
     private readonly productRepository: ProductRepository,
     private readonly categoryRepository: CategoryRepository,
     private readonly brandRepository: BrandRepository,
+    private readonly cloudinaryService: ICloudinaryService,
   ) {}
-
-  async handleSingleFileUpload(file: Express.Multer.File, folderName: string) {
-    try {
-      const uploadDir = join(process.cwd(), 'uploads', folderName);
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-      }
-
-      const filename = Date.now() + '-' + file.originalname;
-      const filePath = join(uploadDir, filename);
-
-      await writeFile(filePath, file.buffer);
-
-      return {
-        filename,
-        path: `/uploads/${folderName}/${filename}`,
-      };
-    } catch (error) {
-      console.error('Upload lỗi:', error);
-      throw new InternalServerErrorException('Không thể upload file');
-    }
-  }
 
   async create(createProductDto: CreateProductDto, image: Express.Multer.File) {
     const product = this.productRepository.create(createProductDto);
@@ -53,8 +28,14 @@ export class ProductsService {
     if (!existBrand) throw new NotFoundException('Thương hiệu này không tồn tại');
     product.brand = existBrand;
 
-    const uploadedImage = await this.handleSingleFileUpload(image, 'products');
-    product.images = uploadedImage.path;
+    const cloudinaryResult = await this.cloudinaryService.uploadFile(image, {
+      fileType: 'product',
+    });
+
+    if (!cloudinaryResult) {
+      throw new InternalServerErrorException('Upload ảnh thất bại');
+    }
+    product.images = cloudinaryResult.secure_url;
 
     return await this.productRepository.save(product);
   }
@@ -87,9 +68,11 @@ export class ProductsService {
     }
 
     if (file) {
-      deleteFileIfExists(existProduct.images);
-      const uploaded = await this.handleSingleFileUpload(file, 'products');
-      updateProductDto.images = uploaded.path;
+      if (existProduct.images) this.cloudinaryService.deleteFile(existProduct.images);
+      const uploaded = await this.cloudinaryService.uploadFile(file, {
+        fileType: 'product',
+      });
+      updateProductDto.images = uploaded.secure_url;
     }
 
     const updateProduct = this.productRepository.create({
@@ -109,7 +92,7 @@ export class ProductsService {
     const existProduct = await this.productRepository.findById(id);
     if (!existProduct) throw new NotFoundException('Sản phẩm không tồn tại');
 
-    deleteFileIfExists(existProduct.images);
+    this.cloudinaryService.deleteFile(existProduct.images);
 
     await this.productRepository.delete(id);
 
@@ -120,7 +103,7 @@ export class ProductsService {
     const existProduct = await this.productRepository.findByCategory(id);
     if (!existProduct) throw new NotFoundException('Sản phẩm không tồn tại');
 
-    existProduct.map((item) => deleteFileIfExists(item.images));
+    existProduct.map((item) => this.cloudinaryService.deleteFile(item.images));
 
     await this.productRepository.deleteByCategoryId(id);
 

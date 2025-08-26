@@ -12,4 +12,7 @@ export class CreateProductVariantDto {
 
   @ApiProperty({ example: '1' })
   productId!: number; // Foreign key to associate with a product
+
+  @ApiProperty({ example: 'linkImage' })
+  image_url!: string;
 }

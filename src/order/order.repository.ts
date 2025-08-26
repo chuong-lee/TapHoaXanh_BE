@@ -1,5 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { BaseRepository } from 'src/database/abstract.repository';
+import { BaseRepository } from '../database/abstract.repository';
 import { Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
 import { FilterOrderDto } from './dto/filter-order.dto';
@@ -106,5 +106,9 @@ export class OrderRepository extends BaseRepository<Order> {
     const order = await this.orderRepository.preload({ id: Number(id), ...updateOrderDto });
     if (!order) throw new NotFoundException(`Order with id ${id} not found`);
     return this.orderRepository.save(order);
+  }
+
+  async findByOrderCode(orderCode: string): Promise<Order | null> {
+    return await this.orderRepository.findOneBy({ order_code: orderCode });
   }
 }
