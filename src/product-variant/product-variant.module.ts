@@ -10,5 +10,6 @@ import { ProductVariantRepository } from './product-variant.repository';
   imports: [TypeOrmModule.forFeature([ProductVariant]), ProductsModule],
   controllers: [ProductVariantController],
   providers: [ProductVariantService, ProductVariantRepository],
+  exports: [ProductVariantRepository],
 })
 export class ProductVariantModule {}

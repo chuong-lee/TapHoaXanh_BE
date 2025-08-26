@@ -13,7 +13,7 @@ export class CartItemService implements ICartItemService {
     private readonly _cartItemRepository: ICartItemRepository,
     @Inject(ProductRepository)
     private readonly _productRepository: ProductRepository,
-    @Inject(ProductRepository)
+    @Inject(ProductVariantRepository)
     private readonly _productVariantRepository: ProductVariantRepository,
   ) {}
 
