@@ -11,7 +11,6 @@ import { CloudinaryModule } from '../cloudinary/cloudinary.module';
   imports: [TypeOrmModule.forFeature([ProductVariant]), ProductsModule, CloudinaryModule],
   controllers: [ProductVariantController],
   providers: [ProductVariantService, ProductVariantRepository],
-  exports: [ProductVariantRepository],
   exports: [ProductVariantService, ProductVariantRepository],
 })
 export class ProductVariantModule {}
