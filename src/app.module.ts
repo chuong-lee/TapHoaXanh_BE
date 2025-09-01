@@ -49,7 +49,5 @@ import { WishlistModule } from './wishlist/wishlist.module';
     CloudinaryModule,
     PaymentModule,
   ],
-  controllers: [],
-  providers: [],
 })
 export class AppModule {}
