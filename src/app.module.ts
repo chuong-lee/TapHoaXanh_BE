@@ -8,6 +8,7 @@ import { BrandModule } from './brand/brand.module';
 import { CartModule } from './cart/cart.module';
 import { CartItemModule } from './cart_item/cart_item.module';
 import { CategoriesModule } from './category/categories.module';
+import { CategoryChildModule } from './category-child/category-child.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { DatabaseModule } from './database/database.module';
 import { NewsModule } from './news/news.module';
@@ -36,6 +37,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
     AuthModule,
     ProductsModule,
     CategoriesModule,
+    CategoryChildModule,
     DatabaseModule,
     ProductVariantModule,
     ProductImagesModule,
