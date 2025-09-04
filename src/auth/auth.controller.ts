@@ -77,6 +77,23 @@ export class AuthController {
   }
 
   @ApiOperation({
+    summary: 'Gửi lại link đặt lại mật khẩu',
+    description: 'Gửi lại link đặt lại mật khẩu nếu user chưa nhận được email',
+  })
+  @Post('resend-forgot-password')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        email: { type: 'string', example: 'user@gmail.com' },
+      },
+    },
+  })
+  async resendForgotPassword(@Body('email') email: string) {
+    return this.authService.resendForgotPassword(email);
+  }
+
+  @ApiOperation({
     summary: 'Đặt lại mật khẩu',
     description: 'Đặt lại mật khẩu khi user click link từ email',
   })

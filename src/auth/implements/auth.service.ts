@@ -127,10 +127,21 @@ export class AuthService implements IAuthService {
       to: email,
       subject: 'Xác thực email tài khoản Tạp Hóa Xanh',
       html: `
-        <h2>Xác thực email</h2>
-        <p>Vui lòng click vào link bên dưới để xác thực email:</p>
-        <a href="${baseUrl}/verify-email?token=${token}">Xác thực email</a>
-        <p>Link này sẽ hết hạn sau 5 phút.</p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #333; text-align: center;">Xác thực email</h2>
+          <p style="color: #666; font-size: 16px; text-align: center; margin: 20px 0;">
+            Vui lòng click vào nút bên dưới để xác thực email:
+          </p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${baseUrl}/verify-email?token=${token}" 
+               style="background-color: #4CAF50; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-size: 16px; font-weight: bold; display: inline-block;">
+              Xác thực email
+            </a>
+          </div>
+          <p style="color: #999; font-size: 14px; text-align: center; margin-top: 30px;">
+            Link này sẽ hết hạn sau 5 phút.
+          </p>
+        </div>
       `,
     });
   }
@@ -194,12 +205,34 @@ export class AuthService implements IAuthService {
       to: email,
       subject: 'Đặt lại mật khẩu tài khoản Tạp Hóa Xanh',
       html: `
-        <h2>Đặt lại mật khẩu</h2>
-        <p>Vui lòng click vào link bên dưới để đặt lại mật khẩu:</p>
-        <a href="${baseUrl}/reset-password?token=${token}">Đặt lại mật khẩu</a>
-        <p>Link này sẽ hết hạn sau 5 phút.</p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #333; text-align: center;">Đặt lại mật khẩu</h2>
+          <p style="color: #666; font-size: 16px; text-align: center; margin: 20px 0;">
+            Vui lòng click vào nút bên dưới để đặt lại mật khẩu:
+          </p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${baseUrl}/reset-password?token=${token}" 
+               style="background-color: #2196F3; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-size: 16px; font-weight: bold; display: inline-block;">
+              Đặt lại mật khẩu
+            </a>
+          </div>
+          <p style="color: #999; font-size: 14px; text-align: center; margin-top: 30px;">
+            Link này sẽ hết hạn sau 5 phút.
+          </p>
+        </div>
       `,
     });
+  }
+
+  async resendForgotPassword(email: string) {
+    const user = await this._userRepository.findByEmail(email);
+    if (!user) throw new NotFoundException('Email không tồn tại!');
+
+    const resetToken = await this.generateActionToken(user, TokenActionType.RESET_PASSWORD, '5m');
+
+    await this.sendResetPasswordEmailWithToken(email, resetToken);
+
+    return { message: 'Link đặt lại mật khẩu đã được gửi lại qua email.' };
   }
 
   async resetPassword(token: string, newPassword: string) {

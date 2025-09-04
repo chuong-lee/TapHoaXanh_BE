@@ -12,6 +12,7 @@ export abstract class IAuthService {
   abstract sendVerificationEmail(email: string): Promise<{ message: string }>;
   abstract sendVerificationEmailWithToken(email: string, token: string): Promise<void>;
   abstract sendResetPasswordEmailWithToken(email: string, token: string): Promise<void>;
+  abstract resendForgotPassword(email: string): Promise<{ message: string }>;
   abstract verifyEmail(token: string): Promise<{ message: string; access_token: string; refresh_token: string }>;
   abstract resetPassword(token: string, newPassword: string): Promise<{ message: string }>;
 }
