@@ -68,11 +68,10 @@ export class OrderService {
     if (result.affected === 0) throw new NotFoundException(`Order with id ${id} not found`);
   }
 
-  async countNumberOfOrder(): Promise<number> {
-    return this.orderRepository.countNumberOfOrder();
+  async countNumberOfOrder(year: number, month?: number): Promise<number> {
+    return this.orderRepository.countNumberOfOrder(year, month);
   }
 
-  // src/order/order.service.t
   // Tạo order từ cart items được chọn
   async createOrderFromCart(createOrderDto: CreateOrderFromCartDto, userId: number): Promise<Order> {
     // 1. Lấy cart items được chọn
@@ -88,22 +87,26 @@ export class OrderService {
     const orderItems: {
       quantity: number;
       unit_price: number;
-      productVariant: any;
+      product: any;
     }[] = [];
 
     for (const cartItem of cartItems) {
       const itemTotal = cartItem.price * cartItem.quantity;
       totalPrice += itemTotal;
 
-      // Tạo order item
+      // Validate product exists
+      if (!cartItem.product) {
+        throw new BadRequestException(`Cart item ${cartItem.id} không có sản phẩm hợp lệ`);
+      }
+
       orderItems.push({
         quantity: cartItem.quantity,
         unit_price: cartItem.price,
-        productVariant: cartItem.product_variant,
+        product: cartItem.product,
       });
     }
 
-    // 6. Tạo order
+    // 4. Tạo order
     const order = this.orderRepository.create({
       total_price: totalPrice,
       note: createOrderDto.note,
@@ -124,7 +127,7 @@ export class OrderService {
         quantity: item.quantity,
         unit_price: item.unit_price,
         orderId: savedOrder.id,
-        productVariantId: item.productVariant.id,
+        productId: item.product.id,
       });
     }
 
@@ -134,11 +137,15 @@ export class OrderService {
     return savedOrder;
   }
 
-  async getTotalRevenueSuccess() {
-    return await this.orderRepository.getTotalRevenueSuccess();
+  async getTotalRevenueSuccess(year: number, month?: number) {
+    return await this.orderRepository.getTotalRevenueSuccess(year, month);
   }
 
   async getMonthlyRevenueSuccess(year: number) {
     return await this.orderRepository.getMonthlyRevenueSuccess(year);
+  }
+
+  async getOrderDetailByCode(orderCode: string) {
+    return await this.orderRepository.getOrderDetailByCode(orderCode);
   }
 }
