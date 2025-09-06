@@ -54,6 +54,11 @@ export class ProductsController {
     return this.productsService.getTopPurchasedProducts(l);
   }
 
+  @Get('filter-null-cate')
+  getAllProductNullCate() {
+    return this.productsService.getAllProductNullCate();
+  }
+
   @Public()
   @Get('search')
   async Search(@Query() query: ProductFilterDto) {
