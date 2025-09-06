@@ -66,7 +66,7 @@ export class ProductImagesService {
       }),
     );
 
-    return await this.productImagesRepository.saveMutiple(listImage);
+    return await this.productImagesRepository.saveMultiple(listImage);
   }
 
   async findAll() {
@@ -96,6 +96,10 @@ export class ProductImagesService {
   async remove(id: number) {
     const productImage = await this.productImagesRepository.findById(id);
     if (!productImage) throw new NotFoundException('Hình ảnh sản phẩm không tồn tại');
+
+    if (!productImage.image_url) {
+      throw new NotFoundException('URL hình ảnh không tồn tại');
+    }
 
     const relativePath = productImage.image_url.startsWith('/')
       ? productImage.image_url.slice(1)

@@ -49,6 +49,13 @@ export class FixProductTable1755753574671 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE \`order_item\` ADD \`images\` varchar(255) NOT NULL`);
         await queryRunner.query(`ALTER TABLE \`order_item\` ADD \`productId\` int NULL`);
         await queryRunner.query(`ALTER TABLE \`order_item\` ADD \`orderId\` int NULL`);
+        
+        // Tạm thời disable foreign key checks
+        await queryRunner.query(`SET FOREIGN_KEY_CHECKS = 0`);
+        
+        // Xóa dữ liệu không hợp lệ trước khi tạo foreign key constraint
+        await queryRunner.query(`DELETE FROM \`order_item\` WHERE \`productId\` IS NOT NULL AND \`productId\` NOT IN (SELECT \`id\` FROM \`product\`)`);
+        await queryRunner.query(`DELETE FROM \`order_item\` WHERE \`orderId\` IS NOT NULL AND \`orderId\` NOT IN (SELECT \`id\` FROM \`order\`)`);
         await queryRunner.query(`ALTER TABLE \`rating\` ADD \`usersId\` int NULL`);
         await queryRunner.query(`ALTER TABLE \`rating\` ADD \`productId\` int NULL`);
         await queryRunner.query(`ALTER TABLE \`wishlist\` ADD \`usersId\` int NULL`);
@@ -80,6 +87,9 @@ export class FixProductTable1755753574671 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE \`product\` ADD CONSTRAINT \`FK_48cfad08aca203c1dcc32cdb595\` FOREIGN KEY (\`category_childId\`) REFERENCES \`category_child\`(\`id\`) ON DELETE CASCADE ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE \`cart_item\` ADD CONSTRAINT \`FK_75db0de134fe0f9fe9e4591b7bf\` FOREIGN KEY (\`productId\`) REFERENCES \`product\`(\`id\`) ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE \`cart_item\` ADD CONSTRAINT \`FK_29e590514f9941296f3a2440d39\` FOREIGN KEY (\`cartId\`) REFERENCES \`cart\`(\`id\`) ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        
+        // Bật lại foreign key checks
+        await queryRunner.query(`SET FOREIGN_KEY_CHECKS = 1`);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {

@@ -19,6 +19,24 @@ export class Order extends AbstractEntity<Order> {
   @Column()
   status!: string;
 
+  @Column({ nullable: true })
+  payment_amount?: number;
+
+  @Column({ nullable: true })
+  payment_status?: string;
+
+  @Column({ nullable: true })
+  payment_method?: string;
+
+  @Column({ nullable: true })
+  payment_description?: string;
+
+  @Column({ nullable: true })
+  transaction_id?: string;
+
+  @Column({ type: 'text', nullable: true })
+  gateway_response?: string;
+
   @ManyToOne(() => Users, (user) => user.order)
   user!: Users;
 

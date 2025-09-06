@@ -15,7 +15,7 @@ export class ProductVariantService {
     const product = await this.productRepository.findById(dto.productId);
     if (!product) throw new NotFoundException('Sản phẩm không tồn tại');
 
-    const variant = this.variantRepository.create(dto);
+    const variant = await this.variantRepository.create(dto);
     return await this.variantRepository.save(variant);
   }
 
@@ -33,7 +33,7 @@ export class ProductVariantService {
   async update(id: number, dto: UpdateProductVariantDto) {
     const variant = await this.variantRepository.findById(id);
     if (!variant) throw new NotFoundException('Biến thể không tồn tại');
-    const updatedVariant = this.variantRepository.create({
+    const updatedVariant = await this.variantRepository.create({
       ...variant,
       ...dto,
     });

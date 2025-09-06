@@ -242,11 +242,13 @@ export class SePayService {
    */
   private async logWebhook(webhookData: SePayWebhookDto): Promise<void> {
     const log = this.logRepository.create({
-      orderId: webhookData.reference || 'unknown',
-      gatewayTransactionId: webhookData.transaction_id,
-      paymentMethod: 'bank_transfer',
-      rawData: webhookData,
-      status: PaymentStatus.SUCCESS,
+      order_id: parseInt(webhookData.reference || '0'),
+      transaction_id: webhookData.transaction_id,
+      amount: webhookData.amount_in,
+      status: webhookData.status,
+      payment_method: 'bank_transfer',
+      description: webhookData.description,
+      gateway_response: JSON.stringify(webhookData),
     });
 
     await this.logRepository.save(log);

@@ -27,7 +27,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
     ConfigModule.forRoot({ 
       cache: true, 
       isGlobal: true,
-      envFilePath: '.env'
+      // envFilePath: '.env' // Tạm thời comment để không yêu cầu file .env
     }),
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'uploads'), // trỏ ra ngoài dist

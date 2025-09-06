@@ -32,6 +32,13 @@ export class InitialSchema1755753703650 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE \`order_item\` ADD \`images\` varchar(255) NOT NULL`);
         await queryRunner.query(`ALTER TABLE \`order_item\` ADD \`productId\` int NULL`);
         await queryRunner.query(`ALTER TABLE \`order_item\` ADD \`orderId\` int NULL`);
+        
+        // Tạm thời disable foreign key checks
+        await queryRunner.query(`SET FOREIGN_KEY_CHECKS = 0`);
+        
+        // Xóa dữ liệu không hợp lệ trước khi tạo foreign key constraint
+        await queryRunner.query(`DELETE FROM \`order_item\` WHERE \`productId\` IS NOT NULL AND \`productId\` NOT IN (SELECT \`id\` FROM \`product\`)`);
+        await queryRunner.query(`DELETE FROM \`order_item\` WHERE \`orderId\` IS NOT NULL AND \`orderId\` NOT IN (SELECT \`id\` FROM \`order\`)`);
         await queryRunner.query(`ALTER TABLE \`voucher\` ADD \`usersId\` int NULL`);
         await queryRunner.query(`ALTER TABLE \`voucher\` ADD \`orderId\` int NULL`);
         await queryRunner.query(`ALTER TABLE \`order\` ADD \`payment_method\` enum ('stripe', 'momo', 'vnpay', 'bank', 'bank_transfer') NULL`);
@@ -80,6 +87,9 @@ export class InitialSchema1755753703650 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE \`product\` ADD CONSTRAINT \`FK_48cfad08aca203c1dcc32cdb595\` FOREIGN KEY (\`category_childId\`) REFERENCES \`category_child\`(\`id\`) ON DELETE CASCADE ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE \`wishlist\` ADD CONSTRAINT \`FK_ec4c67d98bba94d01c12108b2f9\` FOREIGN KEY (\`usersId\`) REFERENCES \`users\`(\`id\`) ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE \`wishlist\` ADD CONSTRAINT \`FK_17e00e49d77ccaf7ff0e14de37b\` FOREIGN KEY (\`productId\`) REFERENCES \`product\`(\`id\`) ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        
+        // Bật lại foreign key checks
+        await queryRunner.query(`SET FOREIGN_KEY_CHECKS = 1`);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {

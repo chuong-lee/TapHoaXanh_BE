@@ -96,19 +96,17 @@ export class VNPayService {
 
       // Lưu thông tin thanh toán vào bảng Payment
       const payment = this.paymentRepository.create({
-        source: 'vnpay',
-        orderId: orderId,
-        amount: amount,
-        currency: 'VND',
-        description: description || `Thanh toán đơn hàng #${orderId}`,
-        payment_method: PaymentMethod.VNPAY,
-        payment_status: PaymentStatus.PENDING,
+        order_id: orderId,
         transaction_id: transactionId,
-        gateway_response: {
+        amount: amount,
+        status: 'pending',
+        payment_method: PaymentMethod.VNPAY,
+        description: description || `Thanh toán đơn hàng #${orderId}`,
+        gateway_response: JSON.stringify({
           payment_url: paymentUrl,
           vnp_data: sortedParams,
           created_at: new Date().toISOString(),
-        },
+        }),
       });
 
       await this.paymentRepository.save(payment);
@@ -190,7 +188,10 @@ export class VNPayService {
       // Xử lý kết quả thanh toán
       if (vnp_ResponseCode === '00') {
         // Thanh toán thành công
-        await this.updateOrderPaymentStatus(order.id, PaymentStatus.SUCCESS, {
+        if (!payment.order) {
+          throw new Error('Order not found in payment');
+        }
+        await this.updateOrderPaymentStatus(payment.order.id, PaymentStatus.SUCCESS, {
           vnp_ResponseCode,
           vnp_TransactionNo,
           vnp_Amount,
@@ -204,17 +205,20 @@ export class VNPayService {
           message: 'Thanh toán thành công',
           code: '00',
           data: {
-            order_id: order.id,
+            order_id: payment.order.id,
             transaction_id: vnp_TxnRef,
             vnp_transaction_no: vnp_TransactionNo,
-            amount: order.payment_amount,
+            amount: payment.order.payment_amount,
             bank_code: vnp_BankCode,
             pay_date: vnp_PayDate,
           },
         };
       } else {
         // Thanh toán thất bại
-        await this.updateOrderPaymentStatus(order.id, PaymentStatus.FAIL, {
+        if (!payment.order) {
+          throw new Error('Order not found in payment');
+        }
+        await this.updateOrderPaymentStatus(payment.order.id, PaymentStatus.FAIL, {
           vnp_ResponseCode,
           vnp_Amount,
           return_data: query,
@@ -225,7 +229,7 @@ export class VNPayService {
           message: `Thanh toán thất bại. Mã lỗi: ${vnp_ResponseCode}`,
           code: vnp_ResponseCode,
           data: {
-            order_id: order.id,
+            order_id: payment.order.id,
             transaction_id: vnp_TxnRef,
             response_code: vnp_ResponseCode,
           },
@@ -572,11 +576,12 @@ export class VNPayService {
    */
   private async logPaymentCreation(transactionId: string, amount: number, status: PaymentStatus): Promise<void> {
     const log = this.logRepository.create({
-      orderId: transactionId,
-      gatewayTransactionId: '',
-      paymentMethod: 'vnpay',
-      rawData: { amount, status },
-      status,
+      order_id: parseInt(transactionId),
+      transaction_id: transactionId,
+      amount: amount,
+      status: status,
+      payment_method: 'vnpay',
+      gateway_response: JSON.stringify({ amount, status }),
     });
 
     await this.logRepository.save(log);
@@ -587,11 +592,12 @@ export class VNPayService {
    */
   private async logIPN(ipnData: any, status: PaymentStatus): Promise<void> {
     const log = this.logRepository.create({
-      orderId: ipnData.vnp_TxnRef || 'unknown',
-      gatewayTransactionId: ipnData.vnp_TransactionNo,
-      paymentMethod: 'vnpay',
-      rawData: ipnData,
-      status,
+      order_id: parseInt(ipnData.vnp_TxnRef || '0'),
+      transaction_id: ipnData.vnp_TransactionNo,
+      amount: parseInt(ipnData.vnp_Amount || '0') / 100,
+      status: status,
+      payment_method: 'vnpay',
+      gateway_response: JSON.stringify(ipnData),
     });
 
     await this.logRepository.save(log);
