@@ -1,130 +1,75 @@
-import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
-import { CreateRatingDto } from './dto/create-rating.dto';
-import { UpdateRatingDto } from './dto/update-rating.dto';
-import { QueryRatingDto } from './dto/query-rating.dto';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { IUsersRepository } from '../users/interfaces/iusers-repository.interface';
 import { RatingRepository } from './rating.repository';
+import { CreateRatingDto } from './dto/create-rating.dto';
 import { Rating } from './entities/rating.entity';
-import { PaginationResult } from '../interface/IPagination';
+import { UpdateRatingDto } from './dto/update-rating.dto';
+import { ProductRepository } from '../products/products.repository';
+import { RatingFilterDto } from './dto/Filter-rating.dto';
 
 @Injectable()
 export class RatingService {
-  constructor(private readonly ratingRepository: RatingRepository) {}
+  constructor(
+    private readonly ratingRepository: RatingRepository,
+    @Inject(IUsersRepository) private readonly userRepository: IUsersRepository, // ✅ đúng token
+    private readonly productRepository: ProductRepository,
+  ) {}
 
   async create(createRatingDto: CreateRatingDto): Promise<Rating> {
-    const { user_id, product_id, rating, comment } = createRatingDto;
-
-    // Kiểm tra xem user đã đánh giá sản phẩm này chưa
-    const existingRating = await this.ratingRepository.checkUserHasRatedProduct(user_id, product_id);
-    if (existingRating) {
-      throw new ConflictException('Bạn đã đánh giá sản phẩm này rồi');
+    const rating = this.ratingRepository.create(createRatingDto);
+    if (createRatingDto.user_id) {
+      const existUser = await this.userRepository.findById(createRatingDto.user_id);
+      if (!existUser) throw new NotFoundException('Người dùng này không tồn tại');
+      rating.users = existUser;
     }
-
-    // Tạo rating mới
-    const newRating = this.ratingRepository.create({
-      rating,
-      comment,
-      users: { id: user_id },
-      product: { id: product_id }
-    });
-
-    return await this.ratingRepository.save(newRating);
-  }
-
-  async findAll(query: QueryRatingDto): Promise<PaginationResult<Rating>> {
-    return await this.ratingRepository.findRatingsWithPagination(query);
-  }
-
-  async findOne(id: number): Promise<Rating> {
-    const rating = await this.ratingRepository.findOne({
-      where: { id },
-      relations: ['users', 'product']
-    });
-
-    if (!rating) {
-      throw new NotFoundException(`Rating với ID ${id} không tồn tại`);
+    if (createRatingDto.product_id) {
+      const existProduct = await this.productRepository.findById(createRatingDto.product_id);
+      if (!existProduct) throw new NotFoundException('Sản phẩm này không tồn tại');
+      rating.product = existProduct;
     }
-
-    return rating;
-  }
-
-  async update(id: number, updateRatingDto: UpdateRatingDto): Promise<Rating> {
-    const rating = await this.findOne(id);
-
-    // Cập nhật rating
-    Object.assign(rating, updateRatingDto);
-    
     return await this.ratingRepository.save(rating);
   }
 
-  async remove(id: number): Promise<void> {
-    const rating = await this.findOne(id);
-    await this.ratingRepository.remove(rating);
+  findAll() {
+    return `This action returns all rating`;
   }
 
-  // Lấy đánh giá theo sản phẩm
-  async getRatingsByProduct(productId: number, query: QueryRatingDto): Promise<PaginationResult<Rating>> {
-    const queryWithProduct = { ...query, product_id: productId };
-    return await this.ratingRepository.findRatingsWithPagination(queryWithProduct);
+  findOne(id: number) {
+    return `This action returns a #${id} rating`;
   }
 
-  // Lấy đánh giá theo user
-  async getRatingsByUser(userId: number, query: QueryRatingDto): Promise<PaginationResult<Rating>> {
-    const queryWithUser = { ...query, user_id: userId };
-    return await this.ratingRepository.findRatingsWithPagination(queryWithUser);
+  async update(id: number, updateRatingDto: UpdateRatingDto) {
+    const rating = await this.ratingRepository.findById(id);
+    if (!rating) {
+      throw new NotFoundException(`Rating with ID ${id} not found`);
+    }
+    const newRating = this.ratingRepository.create({
+      ...rating,
+      ...updateRatingDto,
+    });
+    if (updateRatingDto.user_id) {
+      const existUser = await this.userRepository.findById(updateRatingDto.user_id);
+      if (!existUser) throw new NotFoundException('Người dùng này không tồn tại');
+      newRating.users = existUser;
+    }
+    if (updateRatingDto.product_id) {
+      const existProduct = await this.productRepository.findById(updateRatingDto.product_id);
+      if (!existProduct) throw new NotFoundException('Sản phẩm này không tồn tại');
+      newRating.product = existProduct;
+    }
+    return await this.ratingRepository.save(newRating);
   }
 
-  // Lấy điểm đánh giá trung bình của sản phẩm
-  async getAverageRatingByProduct(productId: number): Promise<{ average: number; count: number }> {
-    return await this.ratingRepository.getAverageRatingByProduct(productId);
+  async remove(id: number) {
+    const existRating = await this.ratingRepository.findById(id);
+    if (!existRating) throw new NotFoundException('Đánh giá không tồn tại');
+
+    await this.ratingRepository.delete(id);
+
+    return { message: 'Xóa thành công' };
   }
 
-  // Lấy phân bố đánh giá của sản phẩm
-  async getRatingDistributionByProduct(productId: number): Promise<{ rating: number; count: number }[]> {
-    return await this.ratingRepository.getRatingDistributionByProduct(productId);
-  }
-
-  // Lấy top sản phẩm được đánh giá cao
-  async getTopRatedProducts(limit: number = 10): Promise<any[]> {
-    return await this.ratingRepository.getTopRatedProducts(limit);
-  }
-
-  // Kiểm tra user đã đánh giá sản phẩm chưa
-  async checkUserHasRatedProduct(userId: number, productId: number): Promise<boolean> {
-    const rating = await this.ratingRepository.checkUserHasRatedProduct(userId, productId);
-    return !!rating;
-  }
-
-  // Lấy thống kê tổng quan về rating
-  async getRatingStatistics(): Promise<any> {
-    const totalRatings = await this.ratingRepository.count();
-    
-    const ratingStats = await this.ratingRepository
-      .createQueryBuilder('rating')
-      .select('rating.rating', 'rating')
-      .addSelect('COUNT(rating.id)', 'count')
-      .groupBy('rating.rating')
-      .orderBy('rating.rating', 'ASC')
-      .getRawMany();
-
-    const averageRating = await this.ratingRepository
-      .createQueryBuilder('rating')
-      .select('AVG(rating.rating)', 'average')
-      .getRawOne();
-
-    return {
-      totalRatings,
-      averageRating: parseFloat(averageRating.average) || 0,
-      distribution: ratingStats,
-      totalProducts: await this.ratingRepository
-        .createQueryBuilder('rating')
-        .select('COUNT(DISTINCT rating.product_id)', 'count')
-        .getRawOne()
-        .then(result => parseInt(result.count) || 0),
-      totalUsers: await this.ratingRepository
-        .createQueryBuilder('rating')
-        .select('COUNT(DISTINCT rating.user_id)', 'count')
-        .getRawOne()
-        .then(result => parseInt(result.count) || 0)
-    };
+  async filterRating(query: RatingFilterDto) {
+    return await this.ratingRepository.filterRating(query);
   }
 }

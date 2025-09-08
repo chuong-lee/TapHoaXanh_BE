@@ -1,41 +1,42 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsInt, IsNotEmpty, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export class CreateRatingDto {
   @ApiProperty({
-    description: 'Rating value from 1 to 5',
-    example: 5,
-    minimum: 1,
-    maximum: 5
-  })
-  @IsNotEmpty()
-  @IsNumber()
-  @Min(1)
-  @Max(5)
-  rating!: number;
-
-  @ApiProperty({
-    description: 'Comment for the rating',
+    description: 'Nội dung đánh giá',
     example: 'Sản phẩm rất tốt, giao hàng nhanh!',
-    required: false
+    required: false,
   })
   @IsOptional()
   @IsString()
   comment?: string;
 
+  @IsOptional()
   @ApiProperty({
-    description: 'Product ID to rate',
-    example: 1
+    description: 'Số sao đánh giá (1-5)',
+    example: 5,
   })
   @IsNotEmpty()
-  @IsNumber()
-  product_id!: number;
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  rating?: number;
 
+  @IsOptional()
   @ApiProperty({
-    description: 'User ID who is rating',
-    example: 1
+    description: 'ID của người dùng đã đánh giá',
+    example: 1,
   })
   @IsNotEmpty()
-  @IsNumber()
-  user_id!: number;
+  @IsInt()
+  user_id?: number;
+
+  @IsOptional()
+  @ApiProperty({
+    description: 'ID sản phẩm được đánh giá',
+    example: 42,
+  })
+  @IsNotEmpty()
+  @IsInt()
+  product_id?: number;
 }
