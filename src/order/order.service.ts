@@ -58,6 +58,9 @@ export class OrderService {
   async filterAllOrder(query: FilterOrderDto) {
     return this.orderRepository.filterAllOrder(query);
   }
+  async findAllOwned(userId: number): Promise<Order[]> {
+    return this.orderRepository.findAllOwned(userId);
+  }
 
   async findOne(id: number): Promise<Order> {
     return this.orderRepository.findOne(id);
