@@ -82,4 +82,8 @@ export class RatingService {
     await this.ratingRepository.deletedRatingByProductId(product_id);
     return { message: 'Xóa thành công' };
   }
+
+  async getAllRatingsByProductId(productId: number): Promise<Rating[]> {
+    return await this.ratingRepository.getAllRatingsByProductId(productId);
+  }
 }

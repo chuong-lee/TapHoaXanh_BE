@@ -54,4 +54,22 @@ export class RatingRepository extends BaseRepository<Rating> {
       where: { product: { id: Number(productId) } }, // 👈 ép sang number
     });
   }
+
+  async getAllRatingsByProductId(productId: number): Promise<Rating[]> {
+    return await this.ratingRepository
+      .createQueryBuilder('r')
+      .select([
+        'r.id AS ratingId',
+        'r.rating AS rating',
+        'u.name AS userName',
+        'p.name AS productName',
+        'p.id AS productId',
+        'r.comment AS comment',
+        'r.createdAt AS createdAt',
+      ])
+      .innerJoin('r.product', 'p')
+      .innerJoin('r.users', 'u')
+      .where('p.id = :productId', { productId })
+      .getRawMany();
+  }
 }

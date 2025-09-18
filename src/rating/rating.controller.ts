@@ -3,6 +3,7 @@ import { RatingService } from './rating.service';
 import { CreateRatingDto } from './dto/create-rating.dto';
 import { UpdateRatingDto } from './dto/update-rating.dto';
 import { RatingFilterDto } from './dto/Filter-rating.dto';
+import { Rating } from './entities/rating.entity';
 
 @Controller('rating')
 export class RatingController {
@@ -26,6 +27,11 @@ export class RatingController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.ratingService.findOne(+id);
+  }
+
+  @Get('/by-product/:id')
+  getAllRatingsByProductId(@Param('id') id: number): Promise<Rating[]> {
+    return this.ratingService.getAllRatingsByProductId(id);
   }
 
   @Patch(':id')
