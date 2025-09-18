@@ -6,7 +6,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { FilterOrderDto } from './dto/filter-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { OrderService } from './order.service';
-import { IsAdminGuard } from 'src/auth/guards/IsAdmin.guard';
+import { IsAdminGuard } from '../auth/guards/IsAdmin.guard';
 
 @Controller('order')
 export class OrderController {
@@ -25,13 +25,18 @@ export class OrderController {
   @Post('from-cart')
   createFromCart(@Body() createOrderDto: CreateOrderFromCartDto, @Req() req: any) {
     const userId = req.user.sub;
-    console.log(1111);
     return this.orderService.createOrderFromCart(createOrderDto, userId);
   }
-
   @Get()
   findAll() {
     return this.orderService.findAll();
+  }
+  @ApiBearerAuth()
+  @UseGuards(JwtGuard)
+  @Get('owned')
+  findAllOwned(@Req() req: any) {
+    const userId = req.user.sub;
+    return this.orderService.findAllOwned(userId);
   }
 
   @UseGuards(JwtGuard, IsAdminGuard)

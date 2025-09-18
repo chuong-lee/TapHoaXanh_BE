@@ -1,6 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { BaseRepository } from '../database/abstract.repository';
 import { FilterOrderDto } from './dto/filter-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -11,13 +11,20 @@ export class OrderRepository extends BaseRepository<Order> {
   constructor(
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
+    private readonly dataSource: DataSource,
   ) {
     super(orderRepository);
   }
 
   async findAll(): Promise<Order[]> {
     return this.orderRepository.find({
-      relations: ['users', 'voucher', 'orderItem'],
+      relations: ['voucher', 'orderItem'],
+    });
+  }
+  async findAllOwned(userId: number): Promise<Order[]> {
+    return this.orderRepository.find({
+      where: { user: { id: userId } },
+      relations: ['user', 'voucher', 'orderItem', 'order.total_price', 'payments'],
     });
   }
 
@@ -95,6 +102,15 @@ export class OrderRepository extends BaseRepository<Order> {
     const order = await this.orderRepository.findOne({
       where: { id },
       relations: ['users', 'voucher', 'orderItem'],
+    });
+    if (!order) throw new NotFoundException(`Order with id ${id} not found`);
+    return order;
+  }
+
+  async findWithItemsAndProducts(id: number): Promise<Order> {
+    const order = await this.orderRepository.findOne({
+      where: { id },
+      relations: ['orderItem', 'orderItem.product', 'user', 'voucher'],
     });
     if (!order) throw new NotFoundException(`Order with id ${id} not found`);
     return order;
@@ -192,5 +208,8 @@ export class OrderRepository extends BaseRepository<Order> {
       ])
       .where('o.order_code = :orderCode', { orderCode })
       .getRawMany();
+  }
+  async resetAutoIncrement(): Promise<void> {
+    await this.dataSource.query('ALTER TABLE order AUTO_INCREMENT = 1');
   }
 }

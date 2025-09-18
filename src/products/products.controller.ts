@@ -17,8 +17,8 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { ProductFilterDto } from './dto/Filter-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductsService } from './products.service';
-import { IsAdminGuard } from 'src/auth/guards/IsAdmin.guard';
-import { JwtGuard } from 'src/auth/guards/jwt.guard';
+import { IsAdminGuard } from '../auth/guards/IsAdmin.guard';
+import { JwtGuard } from '../auth/guards/jwt.guard';
 
 @Controller('products')
 export class ProductsController {
@@ -60,6 +60,7 @@ export class ProductsController {
     return this.productsService.getAllProductNullCate();
   }
 
+  @ApiBearerAuth()
   @UseGuards(JwtGuard, IsAdminGuard)
   @Get('search')
   async Search(@Query() query: ProductFilterDto) {

@@ -37,4 +37,9 @@ export class RatingController {
   remove(@Param('id') id: string) {
     return this.ratingService.remove(+id);
   }
+
+  @Delete('/by-product/:id')
+  deletedRatingByProductId(@Param('id') id: string) {
+    return this.ratingService.deletedRatingByProductId(+id);
+  }
 }

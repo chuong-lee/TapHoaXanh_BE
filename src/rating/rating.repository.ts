@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
 import { RatingFilterDto } from './dto/Filter-rating.dto';
+
 @Injectable()
 export class RatingRepository extends BaseRepository<Rating> {
   constructor(
@@ -42,5 +43,15 @@ export class RatingRepository extends BaseRepository<Rating> {
         lastPage: Math.ceil(total / limit),
       },
     };
+  }
+
+  async deletedRatingByProductId(productId: number) {
+    return await this.ratingRepository.delete({ product: { id: productId } });
+  }
+
+  async findAllRatingByProductId(productId: number): Promise<Rating[]> {
+    return await this.ratingRepository.find({
+      where: { product: { id: Number(productId) } }, // 👈 ép sang number
+    });
   }
 }
