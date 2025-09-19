@@ -24,7 +24,8 @@ export class OrderRepository extends BaseRepository<Order> {
   async findAllOwned(userId: number): Promise<Order[]> {
     return this.orderRepository.find({
       where: { user: { id: userId } },
-      relations: ['user', 'voucher', 'orderItem', 'order.total_price', 'payments'],
+      relations: ['voucher', 'orderItem', 'payments'],
+      select: ['id', 'order_code', 'status', 'total_price', 'createdAt'],
     });
   }
 
