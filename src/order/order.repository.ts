@@ -197,8 +197,7 @@ export class OrderRepository extends BaseRepository<Order> {
       .createQueryBuilder('o')
       .innerJoin('o.user', 'u')
       .innerJoin('o.orderItem', 'oi')
-      .innerJoin('oi.productVariant', 'pv')
-      .innerJoin('pv.product', 'p')
+      .innerJoin('oi.product', 'p')
       .select([
         'p.name AS productName',
         'oi.unit_price AS unitPrice',
