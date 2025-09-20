@@ -16,8 +16,6 @@ export class CartController {
   @UseGuards(JwtGuard)
   async addToCart(@Req() req: any, @Body() dto: CreateCartDto): Promise<any> {
     const userId = req.user.sub;
-    console.log('dto', dto.productId);
-    console.log('userId', userId);
     const result = await this.cartService.addToCart(userId, dto.productId, dto.quantity);
     return result;
   }
