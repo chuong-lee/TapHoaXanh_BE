@@ -3,10 +3,20 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { config } from 'dotenv';
 import { ValidationPipe } from '@nestjs/common';
+import { ExpressAdapter } from '@nestjs/platform-express';
+import express from 'express';
+
 config();
 
+let cachedApp: any;
+
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  if (cachedApp) {
+    return cachedApp;
+  }
+
+  const expressApp = express();
+  const app = await NestFactory.create(AppModule, new ExpressAdapter(expressApp));
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -14,7 +24,6 @@ async function bootstrap() {
     }),
   );
 
-  app.setGlobalPrefix('api');
   app.enableCors({
     origin: [
       'https://taphoaxanh-admin.vercel.app',
@@ -27,6 +36,7 @@ async function bootstrap() {
     exposedHeaders: ['Authorization'],
     credentials: true,
   });
+
   const config = new DocumentBuilder()
     .setTitle('Tên API')
     .setDescription('Mô tả API')
@@ -39,7 +49,7 @@ async function bootstrap() {
     .build();
   const document = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger', app, document, {
-    useGlobalPrefix: true,
+    useGlobalPrefix: false,
     jsonDocumentUrl: 'swagger/json',
     swaggerOptions: {
       persistAuthorization: true,
@@ -55,6 +65,31 @@ async function bootstrap() {
     ],
     customSiteTitle: 'API Documentation',
   });
-  await app.listen(process.env.PORT ?? 5000);
+
+  await app.init();
+  cachedApp = expressApp;
+  return expressApp;
 }
-bootstrap();
+
+// Export handler cho Vercel
+export default async function handler(req: any, res: any) {
+  try {
+    const app = await bootstrap();
+    return app(req, res);
+  } catch (error) {
+    console.error('Lỗi handler:', error);
+    return res.status(500).json({ error: 'Lỗi máy chủ nội bộ' });
+  }
+}
+
+// Cũng export như named export để tương thích
+export { handler };
+
+// Cho môi trường phát triển local
+if (process.env.NODE_ENV !== 'production') {
+  bootstrap().then((app) => {
+    app.listen(process.env.PORT ?? 4000, () => {
+      console.log(`Ứng dụng đang chạy tại: http://localhost:${process.env.PORT ?? 4000}`);
+    });
+  });
+}
