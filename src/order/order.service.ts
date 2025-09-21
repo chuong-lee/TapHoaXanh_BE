@@ -6,6 +6,7 @@ import { IUsersRepository } from '../users/interfaces/iusers-repository.interfac
 import { CreateOrderFromCartDto } from './dto/create-order-from-cart.dto';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { FilterOrderDto } from './dto/filter-order.dto';
+import { PaginatedOrdersDto } from './dto/paginated-orders.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { Order } from './entities/order.entity';
 import { PaymentStatus } from './enums/payment-status.enum';
@@ -62,6 +63,10 @@ export class OrderService {
   }
   async findAllOwned(userId: number): Promise<Order[]> {
     return this.orderRepository.findAllOwned(userId);
+  }
+
+  async findOwnedOrdersPaginated(userId: number, query: PaginatedOrdersDto) {
+    return this.orderRepository.findOwnedOrdersPaginated(userId, query);
   }
 
   async findOne(id: number): Promise<Order> {
