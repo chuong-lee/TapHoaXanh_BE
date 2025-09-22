@@ -6,6 +6,8 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { FilterOrderDto } from './dto/filter-order.dto';
 import { PaginatedOrdersDto } from './dto/paginated-orders.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { ReorderDto } from './dto/reorder.dto';
 import { OrderService } from './order.service';
 import { IsAdminGuard } from '../auth/guards/IsAdmin.guard';
 
@@ -69,6 +71,7 @@ export class OrderController {
     return this.orderService.getMonthlyRevenueSuccess(y);
   }
 
+  @ApiBearerAuth()
   @UseGuards(JwtGuard, IsAdminGuard)
   @Get('/search')
   filterAllOrder(@Query() filter: FilterOrderDto) {
@@ -88,6 +91,11 @@ export class OrderController {
     return this.orderService.findOne(+id);
   }
 
+  @Get(':id/address')
+  getOrderAddress(@Param('id') id: string) {
+    return this.orderService.getOrderAddress(+id);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
     return this.orderService.update(+id, updateOrderDto);
@@ -96,5 +104,30 @@ export class OrderController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.orderService.remove(+id);
+  }
+
+  // Admin endpoints
+  @ApiBearerAuth()
+  @UseGuards(JwtGuard, IsAdminGuard)
+  @Patch(':id/status')
+  updateOrderStatus(@Param('id') id: string, @Body() updateStatusDto: UpdateOrderStatusDto) {
+    return this.orderService.updateOrderStatus(+id, updateStatusDto);
+  }
+
+  // User endpoints
+  @ApiBearerAuth()
+  @UseGuards(JwtGuard)
+  @Patch(':id/cancel')
+  cancelOrder(@Param('id') id: string, @Req() req: any) {
+    const userId = req.user.sub;
+    return this.orderService.cancelOrder(+id, userId);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtGuard)
+  @Post(':id/reorder')
+  reorderOrder(@Param('id') id: string, @Body() reorderDto: ReorderDto, @Req() req: any) {
+    const userId = req.user.sub;
+    return this.orderService.reorderOrder(+id, reorderDto, userId);
   }
 }

@@ -6,6 +6,7 @@ import { IpnFailChecksum, IpnInvalidAmount, IpnOrderNotFound, IpnSuccess, Produc
 import { CreatePaymentDto } from './dto/payment.dto';
 import { PaymentRepository } from './payment.repository';
 import { v4 as uuidv4 } from 'uuid';
+import { OrderStatus } from 'src/order/enums/order-status.enum';
 
 @Injectable()
 export class PaymentService {
@@ -50,11 +51,10 @@ export class PaymentService {
     if (!orderId) throw new NotFoundException('Chưa chọn đơn hàng');
     const orderExist = await this.orderRepository.findById(orderId);
     if (!orderExist) throw new NotFoundException('Đơn hàng không tồn tại');
-    orderExist.status = 'success';
     await this.orderRepository.save(orderExist);
     const payment = this.paymentRepository.create({
       payment_method: 'COD',
-      status: 'success',
+      status: 'pending',
       amount: orderExist.total_price,
       order: orderExist,
     });
@@ -100,8 +100,8 @@ export class PaymentService {
     }
 
     // Cập nhật trạng thái đơn hàng
-    if (order.status !== 'success') {
-      order.status = 'success';
+    if (order.status !== OrderStatus.SUCCESS) {
+      order.status = OrderStatus.SUCCESS;
       await this.orderRepository.save(order);
     }
 
@@ -120,7 +120,6 @@ export class PaymentService {
     if (queryParams.vnp_ResponseCode === '00') {
       payment.status = 'success';
       // Có thể cập nhật status order thành 'paid' ở đây
-      await this.handleIpn(queryParams);
     } else {
       payment.status = 'failed';
       // Hoàn kho khi thất bại
