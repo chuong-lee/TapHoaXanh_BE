@@ -6,7 +6,6 @@ import { FilterOrderDto } from './dto/filter-order.dto';
 import { PaginatedOrdersDto } from './dto/paginated-orders.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { Order } from './entities/order.entity';
-import { PaymentStatus } from './enums/payment-status.enum';
 import { Address } from '../address/entities/address.entity';
 
 export class OrderRepository extends BaseRepository<Order> {
@@ -74,7 +73,18 @@ export class OrderRepository extends BaseRepository<Order> {
   }
 
   async filterAllOrder(query: FilterOrderDto) {
-    const { search, status, page = 1, limit = 10, start_date, end_date, month, year } = query;
+    const {
+      search,
+      status,
+      page = 1,
+      limit = 10,
+      start_date,
+      end_date,
+      month,
+      year,
+      payment_status,
+      payment_method,
+    } = query;
 
     const qb = this.orderRepository
       .createQueryBuilder('o')
@@ -113,6 +123,18 @@ export class OrderRepository extends BaseRepository<Order> {
 
     if (year) {
       qb.andWhere(`EXTRACT(YEAR FROM o.createdAt) = :year`, { year });
+    }
+
+    if (payment_status) {
+      qb.andWhere(`LOWER(p.status) LIKE LOWER(:payment_status)`, {
+        payment_status: `%${payment_status}%`,
+      });
+    }
+
+    if (payment_method) {
+      qb.andWhere(`LOWER(p.payment_method) LIKE LOWER(:payment_method)`, {
+        payment_method: `%${payment_method}%`,
+      });
     }
 
     qb.orderBy('o.id', 'DESC')
@@ -188,7 +210,8 @@ export class OrderRepository extends BaseRepository<Order> {
   async countNumberOfOrder(year?: number, month?: number): Promise<number> {
     const qb = this.orderRepository
       .createQueryBuilder('o')
-      .where('o.status = :status', { status: PaymentStatus.SUCCESS });
+      .innerJoin('o.payments', 'p')
+      .where('p.status = :status', { status: 'success' });
 
     if (month) {
       qb.andWhere(`EXTRACT(MONTH FROM o.createdAt) = :month`, { month });
@@ -246,8 +269,9 @@ export class OrderRepository extends BaseRepository<Order> {
   async getTotalRevenueSuccess(year?: number, month?: number): Promise<number> {
     const qb = this.orderRepository
       .createQueryBuilder('o')
+      .innerJoin('o.payments', 'p')
       .select('SUM(o.total_price)', 'total')
-      .where('o.status = :status', { status: PaymentStatus.SUCCESS });
+      .where('p.status = :status', { status: 'success' });
 
     if (month) {
       qb.andWhere(`EXTRACT(MONTH FROM o.createdAt) = :month`, { month });
@@ -265,9 +289,10 @@ export class OrderRepository extends BaseRepository<Order> {
   async getMonthlyRevenueSuccess(year: number): Promise<number[]> {
     const rows = await this.orderRepository
       .createQueryBuilder('o')
+      .innerJoin('o.payments', 'p')
       .select('MONTH(o.createdAt)', 'month')
       .addSelect('SUM(o.total_price)', 'total')
-      .where('o.status = :status', { status: PaymentStatus.SUCCESS })
+      .where('p.status = :status', { status: 'success' })
       .andWhere('YEAR(o.createdAt) = :year', { year })
       .groupBy('MONTH(o.createdAt)')
       .orderBy('MONTH(o.createdAt)', 'ASC')
@@ -278,6 +303,33 @@ export class OrderRepository extends BaseRepository<Order> {
       monthly[Number(r.month) - 1] = Number(r.total);
     }
     return monthly;
+  }
+
+  async getDailyRevenue(start_date?: string, end_date?: string): Promise<{ date: string; revenue: number }[]> {
+    const qb = this.orderRepository
+      .createQueryBuilder('o')
+      .innerJoin('o.payments', 'p')
+      .select('DATE(o.createdAt)', 'date')
+      .addSelect('SUM(o.total_price)', 'revenue')
+      .where('p.status = :status', { status: 'success' });
+
+    if (start_date) {
+      qb.andWhere('DATE(o.createdAt) >= :start_date', { start_date });
+    }
+
+    if (end_date) {
+      qb.andWhere('DATE(o.createdAt) <= :end_date', { end_date });
+    }
+
+    const rows = await qb
+      .groupBy('DATE(o.createdAt)')
+      .orderBy('DATE(o.createdAt)', 'ASC')
+      .getRawMany<{ date: string; revenue: string }>();
+
+    return rows.map((row) => ({
+      date: row.date,
+      revenue: Number(row.revenue),
+    }));
   }
 
   async getOrderDetailByCode(orderCode: string): Promise<Order[]> {

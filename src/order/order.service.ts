@@ -404,6 +404,8 @@ export class OrderService {
         if (codPayment) {
           codPayment.status = 'success';
           await queryRunner.manager.getRepository(Payment).save(codPayment);
+          // Tăng số lượng sản phẩm khi đơn hàng COD thành công
+          await this.increaseInventoryOnSuccess(orderId);
         }
       }
 
@@ -559,6 +561,32 @@ export class OrderService {
 
       await queryRunner.commitTransaction();
       return savedOrder;
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+      throw e;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async getDailyRevenue(start_date?: string, end_date?: string): Promise<{ date: string; revenue: number }[]> {
+    return this.orderRepository.getDailyRevenue(start_date, end_date);
+  }
+
+  private async increaseInventoryOnSuccess(orderId: number): Promise<void> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const order = await this.orderRepository.findWithItemsAndProducts(orderId);
+      for (const item of order.orderItem) {
+        const product = item.product;
+        if (!product) continue;
+        // Tăng số lượng purchase lên 1 cho mỗi sản phẩm trong đơn hàng
+        product.purchase += 1;
+        await queryRunner.manager.getRepository(Product).save(product);
+      }
+      await queryRunner.commitTransaction();
     } catch (e) {
       await queryRunner.rollbackTransaction();
       throw e;

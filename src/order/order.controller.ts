@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { CreateOrderFromCartDto } from './dto/create-order-from-cart.dto';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -84,6 +84,16 @@ export class OrderController {
     const y = Number(year) || new Date().getFullYear();
     const m = month ? parseInt(month, 10) : undefined;
     return this.orderService.countNumberOfOrder(y, m);
+  }
+
+  @ApiOperation({ summary: 'Xem doanh thu theo ngày' })
+  @UseGuards(JwtGuard, IsAdminGuard)
+  @ApiBearerAuth()
+  @ApiQuery({ name: 'start_date', required: false, description: 'Ngày bắt đầu (YYYY-MM-DD)' })
+  @ApiQuery({ name: 'end_date', required: false, description: 'Ngày kết thúc (YYYY-MM-DD)' })
+  @Get('daily-revenue')
+  async getDailyRevenue(@Query('start_date') start_date?: string, @Query('end_date') end_date?: string) {
+    return this.orderService.getDailyRevenue(start_date, end_date);
   }
 
   @Get(':id')
